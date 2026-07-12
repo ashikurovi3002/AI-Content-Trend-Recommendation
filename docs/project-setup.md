@@ -292,8 +292,8 @@ Everything is configured correctly if:
 
 | Layer          | Technology                  |
 | -------------- | --------------------------- |
-| Frontend       | React + Vite + Tailwind CSS |
-| Backend        | Node.js + Express.js        |
+| Frontend       | React + Vite + Tailwind CSS+typescript |
+| Backend        | Node.js + Express.js+typescript       |
 | Database       | MongoDB Atlas + Mongoose    |
 | AI             | Google Gemini API           |
 | Authentication | JWT                         |
