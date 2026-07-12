@@ -1,43 +1,65 @@
 # 🚀 TrendPilot AI
 
-> AI-powered Content Intelligence Platform that helps marketing teams discover trending topics, summarize industry content, and generate data-driven content ideas.
+> **AI-Powered Content Intelligence Platform for Marketing Teams**
 
-![Banner](assets/banner.png)
+TrendPilot AI helps marketing and growth teams discover trending topics, monitor industry content, and generate AI-powered content recommendations automatically.
 
-## 📖 Overview
-
-TrendPilot AI is a Content Intelligence SaaS that continuously monitors selected websites and YouTube channels, analyzes newly published content using AI, and recommends high-potential content ideas for social media teams.
-
-Instead of spending hours researching trends manually, teams receive AI-generated summaries, topic recommendations, hooks, outlines, and publishing suggestions in one dashboard.
+Instead of spending hours manually researching blogs, YouTube channels, and market trends, TrendPilot AI continuously monitors your selected sources, summarizes new content, and suggests the next high-performing content ideas based on real-time data.
 
 ---
 
 ## ✨ Features
 
-- 🔍 Monitor unlimited websites & blogs
-- 📺 Track YouTube channels automatically
-- 🤖 AI-powered content summarization
-- 💡 Topic & content idea generation
-- 📈 Trend detection engine
-- 🎯 AI recommendation score
-- 📅 Smart content planning dashboard
-- ⚡ Real-time content monitoring
+### 📡 Smart Source Monitoring
+
+* Monitor unlimited websites & blogs
+* Track YouTube channels automatically
+* Check for new content every 4–6 hours
+* Detect newly published blogs and videos
+
+### 🤖 AI Content Intelligence
+
+* AI-generated summaries
+* Topic extraction
+* Keyword extraction
+* Content outline generation
+* Hook recommendations
+* Social media content ideas
+
+### 📈 Trend Recommendation Engine
+
+* Discover trending topics
+* AI Opportunity Score
+* Recommended content format
+* Suggested platform
+* Best publishing strategy
+
+### 📊 Dashboard
+
+* Latest monitored content
+* AI recommendations
+* Source management
+* Content library
+* Analytics (Upcoming)
 
 ---
 
-## 🏗 Architecture
+# 🏗 System Architecture
 
-```
-Website / YouTube
+```text
+Admin Dashboard
         │
         ▼
-Content Collector
+Source Manager
+        │
+        ▼
+Website & YouTube Collector
         │
         ▼
 AI Summarizer
         │
         ▼
-Topic Extractor
+Topic Extraction Engine
         │
         ▼
 Recommendation Engine
@@ -48,62 +70,145 @@ Dashboard
 
 ---
 
-## 🛠 Tech Stack
+# 🛠 Tech Stack
 
-### Frontend
+## Frontend
 
-- Next.js
-- Tailwind CSS
-- shadcn/ui
+* React.js
+* Vite
+* Tailwind CSS
+* shadcn/ui
+* React Router
+* Axios
 
-### Backend
+## Backend
 
-- FastAPI
-- Python
+* Node.js
+* Express.js
 
-### Database
+## Database
 
-- PostgreSQL
-- Supabase
+* MongoDB Atlas
+* Mongoose
 
-### AI
+## AI
 
-- Google Gemini API
+* Google Gemini API
 
-### Deployment
+## Authentication
 
-- Vercel
-- Render
+* JWT Authentication
+
+## Deployment
+
+* Vercel (Frontend)
+* Render (Backend)
+* MongoDB Atlas
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
-```
-frontend/
-backend/
+```text
+trendpilot-ai/
+
+client/
+server/
 docs/
 assets/
+
+README.md
+.env.example
+.gitignore
+LICENSE
 ```
 
 ---
 
-## 🚀 Roadmap
+# 🚀 Core Workflow
 
-- [x] UI Design
-- [ ] Authentication
-- [ ] Source Management
-- [ ] Website Monitoring
-- [ ] YouTube Monitoring
-- [ ] AI Summarization
-- [ ] Recommendation Engine
-- [ ] Dashboard Analytics
-- [ ] Deployment
+```text
+Add Source
+
+↓
+
+Website / YouTube Monitoring
+
+↓
+
+New Content Found
+
+↓
+
+AI Summary
+
+↓
+
+Topic Extraction
+
+↓
+
+Content Recommendation
+
+↓
+
+Dashboard
+```
 
 ---
 
-## 👥 Team
+# 📅 Development Roadmap
+
+### Phase 1
+
+* UI Design
+* Project Setup
+* Database Design
+
+### Phase 2
+
+* Source Management
+* Website Monitoring
+* YouTube Monitoring
+
+### Phase 3
+
+* AI Summarization
+* Topic Extraction
+* Recommendation Engine
+
+### Phase 4
+
+* Dashboard
+* Authentication
+* Deployment
+
+---
+
+# 🎯 MVP Features
+
+* Source Management
+* Website Monitoring
+* YouTube Monitoring
+* AI Summary
+* Topic Suggestions
+* AI Recommendation Dashboard
+
+---
+
+# 📌 Future Features
+
+* Competitor Analysis
+* Google Trends Integration
+* Social Media Trend Analysis
+* Team Collaboration
+* AI Content Calendar
+* Email Notifications
+* Telegram Alerts
+* Analytics Dashboard
+
+---
+
+# 👥 Team
 
 Hackathon Project
-
-Built with ❤️ using AI + Modern Web Technologies.
