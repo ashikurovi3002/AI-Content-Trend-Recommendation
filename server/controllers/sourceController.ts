@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as sourceService from '../services/sourceService';
+import Notification from '../models/Notification';
 
 export const addSource = async (req: Request, res: Response) => {
   try {
@@ -8,6 +9,15 @@ export const addSource = async (req: Request, res: Response) => {
 
     const sourceData = { ...req.body, createdBy: userId };
     const source = await sourceService.createSource(sourceData);
+    
+    // Trigger notification
+    await Notification.create({
+      userId,
+      title: 'New Source Added',
+      message: `You have successfully added "${source.name}" to your tracked sources.`,
+      type: 'success'
+    });
+
     res.status(201).json(source);
   } catch (error: any) {
     res.status(400).json({ error: error.message });

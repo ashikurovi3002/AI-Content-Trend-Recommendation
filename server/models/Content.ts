@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IContent extends Document {
+  userId: mongoose.Types.ObjectId;
   sourceId: mongoose.Types.ObjectId;
   title: string;
   url: string;
@@ -15,6 +16,7 @@ export interface IContent extends Document {
 
 const ContentSchema: Schema = new Schema(
   {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     sourceId: { type: Schema.Types.ObjectId, ref: 'Source', required: true, index: true },
     title: { type: String, required: true },
     url: { type: String, required: true },

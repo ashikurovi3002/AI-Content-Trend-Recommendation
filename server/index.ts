@@ -8,6 +8,9 @@ import userRoutes from './routes/userRoutes';
 import contentRoutes from './routes/contentRoutes';
 import recommendationRoutes from './routes/recommendationRoutes';
 import sourceRoutes from './routes/sourceRoutes';
+import integrationRoutes from './routes/integrationRoutes';
+import dashboardRoutes from './routes/dashboardRoutes';
+import notificationRoutes from './routes/notificationRoutes';
 
 // Load env vars
 dotenv.config();
@@ -24,6 +27,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/sources', sourceRoutes);
+app.use('/api/integrations', integrationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IRecommendation extends Document {
+  userId: mongoose.Types.ObjectId;
   contentId: mongoose.Types.ObjectId;
   suggestedTitle: string;
   hook?: string;
@@ -17,6 +18,7 @@ export interface IRecommendation extends Document {
 
 const RecommendationSchema: Schema = new Schema(
   {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     contentId: { type: Schema.Types.ObjectId, ref: 'Content', required: true, index: true },
     suggestedTitle: { type: String, required: true },
     hook: { type: String },

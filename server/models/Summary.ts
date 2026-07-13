@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ISummary extends Document {
+  userId: mongoose.Types.ObjectId;
   contentId: mongoose.Types.ObjectId;
   summary: string;
   keywords: string[];
@@ -15,6 +16,7 @@ export interface ISummary extends Document {
 
 const SummarySchema: Schema = new Schema(
   {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     contentId: { type: Schema.Types.ObjectId, ref: 'Content', required: true, index: true },
     summary: { type: String, required: true },
     keywords: { type: [String], default: [] },
