@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import {
-  Globe,
-  Settings,
-  User,
-  Menu,
-  X,
-  Bell,
-  Search,
-  LogOut,
-  LayoutDashboard
-} from "lucide-react";
+import { Globe, Menu, X, Bell, Search, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuthStore } from "../services/authStore.js";
 
 /**

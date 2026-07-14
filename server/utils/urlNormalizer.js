@@ -42,7 +42,7 @@ export const normalizeUrl = (urlStr) => {
     }
 
     return normalized;
-  } catch (_e) {
+  } catch {
     // Fallback normalization if URL parsing fails
     let fallback = urlStr.trim().toLowerCase();
     if (fallback.endsWith("/")) {

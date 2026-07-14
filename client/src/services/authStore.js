@@ -89,7 +89,7 @@ export const useAuthStore = create((set, get) => ({
         isAuthenticated: true,
         isLoading: false
       });
-    } catch (_err) {
+    } catch {
       // Token expired or invalid
       localStorage.removeItem("token");
       set({

@@ -5,24 +5,13 @@ import {
   FileText,
   Lightbulb,
   Clock,
-  ArrowRight,
   TrendingUp,
   Activity,
   AlertTriangle,
-  Play,
   Loader2,
-  RefreshCw,
-  ExternalLink
+  RefreshCw
 } from "lucide-react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Cell
-} from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import dashboardService from "../services/dashboardService.js";
 import api from "../services/api.js";
 
@@ -111,10 +100,7 @@ export default function Dashboard() {
     scanMutation.mutate();
   };
 
-  const isGlobalLoading =
-    statsLoading || trendsLoading || contentLoading || recsLoading || activityLoading;
-  const isGlobalError =
-    statsError || trendsError || contentError || recsError || activityError;
+  const isGlobalError = statsError || trendsError || contentError || recsError || activityError;
 
   // Render Skeleton Cards for Stats Loading
   const renderStatsSkeleton = () => (
@@ -187,9 +173,7 @@ export default function Dashboard() {
               <span className="text-xs font-semibold uppercase tracking-wide">Total Sources</span>
               <Globe className="h-4.5 w-4.5 text-indigo-400" />
             </div>
-            <div className="text-2xl font-bold text-white mt-1">
-              {stats?.totalSources ?? 0}
-            </div>
+            <div className="text-2xl font-bold text-white mt-1">{stats?.totalSources ?? 0}</div>
           </div>
 
           {/* Active Sources */}
@@ -198,9 +182,7 @@ export default function Dashboard() {
               <span className="text-xs font-semibold uppercase tracking-wide">Active</span>
               <CheckCircle className="h-4.5 w-4.5 text-emerald-400" />
             </div>
-            <div className="text-2xl font-bold text-white mt-1">
-              {stats?.activeSources ?? 0}
-            </div>
+            <div className="text-2xl font-bold text-white mt-1">{stats?.activeSources ?? 0}</div>
           </div>
 
           {/* Total Content Items */}
@@ -209,9 +191,7 @@ export default function Dashboard() {
               <span className="text-xs font-semibold uppercase tracking-wide">Crawled Items</span>
               <FileText className="h-4.5 w-4.5 text-blue-400" />
             </div>
-            <div className="text-2xl font-bold text-white mt-1">
-              {stats?.totalContent ?? 0}
-            </div>
+            <div className="text-2xl font-bold text-white mt-1">{stats?.totalContent ?? 0}</div>
           </div>
 
           {/* Total Recommendations */}
@@ -231,9 +211,7 @@ export default function Dashboard() {
               <span className="text-xs font-semibold uppercase tracking-wide">Processed Today</span>
               <Clock className="h-4.5 w-4.5 text-violet-400" />
             </div>
-            <div className="text-2xl font-bold text-white mt-1">
-              {stats?.processedToday ?? 0}
-            </div>
+            <div className="text-2xl font-bold text-white mt-1">{stats?.processedToday ?? 0}</div>
           </div>
         </div>
       )}
@@ -247,7 +225,9 @@ export default function Dashboard() {
               <TrendingUp className="h-5 w-5 text-indigo-400" />
               Trending Topics
             </h2>
-            <span className="text-[10px] text-zinc-500 uppercase font-semibold">Aggregated Summary</span>
+            <span className="text-[10px] text-zinc-500 uppercase font-semibold">
+              Aggregated Summary
+            </span>
           </div>
 
           {trendsLoading ? (
@@ -271,14 +251,15 @@ export default function Dashboard() {
                     axisLine={false}
                     tickLine={false}
                   />
-                  <YAxis tick={{ fill: "#71717a", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    tick={{ fill: "#71717a", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(39, 39, 42, 0.3)" }} />
                   <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                     {trends.topTopics.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={index % 2 === 0 ? "#4f46e5" : "#6366f1"}
-                      />
+                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#4f46e5" : "#6366f1"} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -294,7 +275,9 @@ export default function Dashboard() {
               <Activity className="h-5 w-5 text-amber-400" />
               Score Distribution
             </h2>
-            <span className="text-[10px] text-zinc-500 uppercase font-semibold">Opportunity Score</span>
+            <span className="text-[10px] text-zinc-500 uppercase font-semibold">
+              Opportunity Score
+            </span>
           </div>
 
           {trendsLoading ? (
@@ -319,7 +302,11 @@ export default function Dashboard() {
                     axisLine={false}
                     tickLine={false}
                   />
-                  <YAxis tick={{ fill: "#71717a", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    tick={{ fill: "#71717a", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(39, 39, 42, 0.3)" }} />
                   <Bar dataKey="count" fill="#d97706" radius={[6, 6, 0, 0]} />
                 </BarChart>
@@ -343,7 +330,10 @@ export default function Dashboard() {
           {recsLoading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-16 rounded-xl bg-zinc-900/30 border border-zinc-850 animate-pulse" />
+                <div
+                  key={i}
+                  className="h-16 rounded-xl bg-zinc-900/30 border border-zinc-850 animate-pulse"
+                />
               ))}
             </div>
           ) : recommendations.length === 0 ? (
@@ -358,10 +348,15 @@ export default function Dashboard() {
                   className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/40 hover:border-zinc-800 transition-colors flex items-center justify-between gap-4"
                 >
                   <div className="space-y-1 truncate">
-                    <p className="text-sm font-semibold text-zinc-200 truncate">{rec.suggestedTitle}</p>
+                    <p className="text-sm font-semibold text-zinc-200 truncate">
+                      {rec.suggestedTitle}
+                    </p>
                     <div className="flex flex-wrap gap-2 items-center">
                       {rec.platform.map((p) => (
-                        <span key={p} className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-950 text-indigo-300 font-semibold border border-indigo-900/40 uppercase">
+                        <span
+                          key={p}
+                          className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-950 text-indigo-300 font-semibold border border-indigo-900/40 uppercase"
+                        >
                           {p}
                         </span>
                       ))}
@@ -370,7 +365,8 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-xs font-semibold text-indigo-400">
-                      Opp Score: <span className="text-white font-bold">{rec.opportunityScore}</span>
+                      Opp Score:{" "}
+                      <span className="text-white font-bold">{rec.opportunityScore}</span>
                     </div>
                     <div className="text-[10px] text-zinc-500">
                       Trend: <span className="font-semibold text-zinc-400">{rec.trendScore}</span>
@@ -394,12 +390,15 @@ export default function Dashboard() {
           {contentLoading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-16 rounded-xl bg-zinc-900/30 border border-zinc-850 animate-pulse" />
+                <div
+                  key={i}
+                  className="h-16 rounded-xl bg-zinc-900/30 border border-zinc-850 animate-pulse"
+                />
               ))}
             </div>
           ) : content.length === 0 ? (
             <div className="p-8 text-center border border-dashed border-zinc-800 rounded-xl text-xs text-zinc-500">
-              No recent crawls recorded. Click "Scan Feeds Now" above.
+              No recent crawls recorded. Click &quot;Scan Feeds Now&quot; above.
             </div>
           ) : (
             <div className="space-y-3">
@@ -448,7 +447,10 @@ export default function Dashboard() {
         {activityLoading ? (
           <div className="space-y-4">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="h-14 rounded-xl bg-zinc-900/30 border border-zinc-850 animate-pulse" />
+              <div
+                key={i}
+                className="h-14 rounded-xl bg-zinc-900/30 border border-zinc-850 animate-pulse"
+              />
             ))}
           </div>
         ) : !activity ||
@@ -470,14 +472,23 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-2">
                   {activity.recentCrawls.slice(0, 4).map((c) => (
-                    <div key={c.id} className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs">
+                    <div
+                      key={c.id}
+                      className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs"
+                    >
                       <div className="flex justify-between items-center">
-                        <span className="font-semibold text-zinc-300 truncate max-w-28">{c.sourceName}</span>
-                        <span className={`px-1 py-0.5 rounded text-[8px] font-bold uppercase ${c.status === "completed" ? "bg-emerald-950 text-emerald-400" : "bg-rose-955 text-rose-400"}`}>
+                        <span className="font-semibold text-zinc-300 truncate max-w-28">
+                          {c.sourceName}
+                        </span>
+                        <span
+                          className={`px-1 py-0.5 rounded text-[8px] font-bold uppercase ${c.status === "completed" ? "bg-emerald-950 text-emerald-400" : "bg-rose-955 text-rose-400"}`}
+                        >
                           {c.status}
                         </span>
                       </div>
-                      <p className="text-[10px] text-zinc-500 mt-1">{new Date(c.timestamp).toLocaleString()}</p>
+                      <p className="text-[10px] text-zinc-500 mt-1">
+                        {new Date(c.timestamp).toLocaleString()}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -494,11 +505,18 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-2">
                   {activity.aiProcessingEvents.slice(0, 4).map((a) => (
-                    <div key={a.id} className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs">
+                    <div
+                      key={a.id}
+                      className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs"
+                    >
                       <p className="font-semibold text-zinc-300 truncate">{a.title}</p>
                       <div className="flex justify-between items-center mt-1">
-                        <span className="text-[8px] text-emerald-400 uppercase font-semibold">Analyzed</span>
-                        <span className="text-[10px] text-zinc-500">{new Date(a.timestamp).toLocaleDateString()}</span>
+                        <span className="text-[8px] text-emerald-400 uppercase font-semibold">
+                          Analyzed
+                        </span>
+                        <span className="text-[10px] text-zinc-500">
+                          {new Date(a.timestamp).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -516,11 +534,17 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-2">
                   {activity.recommendationEvents.slice(0, 4).map((r) => (
-                    <div key={r.id} className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs">
+                    <div
+                      key={r.id}
+                      className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs"
+                    >
                       <p className="font-semibold text-zinc-300 truncate">{r.title}</p>
                       <div className="flex items-center gap-1.5 mt-1">
                         {r.platforms.map((p) => (
-                          <span key={p} className="px-1 py-0.5 rounded text-[8px] bg-indigo-950 text-indigo-400 font-semibold border border-indigo-900/40 uppercase">
+                          <span
+                            key={p}
+                            className="px-1 py-0.5 rounded text-[8px] bg-indigo-950 text-indigo-400 font-semibold border border-indigo-900/40 uppercase"
+                          >
                             {p}
                           </span>
                         ))}

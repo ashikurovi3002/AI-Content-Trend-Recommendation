@@ -32,7 +32,7 @@ export default function Register() {
         // Automatically navigate to login page on successful signup
         navigate("/login");
       }
-    } catch (_err) {
+    } catch {
       // Error handled by store
     }
   };

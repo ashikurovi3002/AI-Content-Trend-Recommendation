@@ -140,9 +140,6 @@ export default function Sources() {
     }
   };
 
-  // Unique Category Extract for filter layout
-  const categories = [...new Set(sources.map((s) => s.category))];
-
   return (
     <div className="space-y-8">
       {/* Page Header */}

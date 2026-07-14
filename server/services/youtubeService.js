@@ -61,7 +61,7 @@ class YoutubeService {
           return { forHandle: lastPart.startsWith("@") ? lastPart : `@${lastPart}` };
         }
       }
-    } catch (_e) {
+    } catch {
       // Fallback: treat string as handle if no url pattern parsed
       return { forHandle: trimmed.startsWith("@") ? trimmed : `@${trimmed}` };
     }

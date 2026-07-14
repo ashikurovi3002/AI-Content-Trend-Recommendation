@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import globals from "globals";
+import reactPlugin from "eslint-plugin-react";
 
 export default [
   {
@@ -8,6 +9,9 @@ export default [
   js.configs.recommended,
   {
     files: ["**/*.js", "**/*.jsx"],
+    plugins: {
+      react: reactPlugin
+    },
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: "module",
@@ -22,7 +26,15 @@ export default [
         }
       }
     },
+    settings: {
+      react: {
+        version: "detect"
+      }
+    },
     rules: {
+      ...reactPlugin.configs.recommended.rules,
+      "react/react-in-jsx-scope": "off", // Vite/React 19 doesn't require React in scope
+      "react/prop-types": "off", // Decoupled in Vite templates
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "no-console": "off",
       semi: ["error", "always"],

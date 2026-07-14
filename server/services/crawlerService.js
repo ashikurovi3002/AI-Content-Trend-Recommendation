@@ -198,7 +198,7 @@ class CrawlerService {
         try {
           const subItems = await this.fetchSitemap(sourceId, targetUrl, depth + 1);
           savedItems.push(...subItems);
-        } catch (_err) {
+        } catch {
           // ignore failures in child sitemaps
         }
         continue;
@@ -274,7 +274,7 @@ class CrawlerService {
             links.push(absoluteUrl);
           }
         }
-      } catch (_e) {
+      } catch {
         // continue
       }
     });

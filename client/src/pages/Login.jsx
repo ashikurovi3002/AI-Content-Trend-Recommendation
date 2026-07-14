@@ -30,7 +30,7 @@ export default function Login() {
       if (success) {
         navigate("/");
       }
-    } catch (_err) {
+    } catch {
       // Error handled by store
     }
   };
@@ -124,7 +124,7 @@ export default function Login() {
       {/* Footer Info */}
       <div className="text-center">
         <p className="text-xs text-zinc-500">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link to="/register" className="text-indigo-400 hover:underline">
             Create an account
           </Link>
