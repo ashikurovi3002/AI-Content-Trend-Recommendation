@@ -1,0 +1,14 @@
+You are an AI assistant. Analyze this segment of a larger article and generate a intermediate summary along with key topics and keywords.
+
+Title: {{TITLE}}
+Content Segment:
+{{CONTENT}}
+
+You must respond with a valid JSON object matching the following structure. Do not include markdown code block ticks or any conversational text.
+
+Response JSON Schema:
+{
+  "summary": "Brief summary of this segment.",
+  "keywords": ["key1", "key2"],
+  "topics": ["topic1", "topic2"]
+}

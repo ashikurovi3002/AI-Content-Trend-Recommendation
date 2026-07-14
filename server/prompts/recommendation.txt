@@ -1,0 +1,37 @@
+You are an elite marketing strategist and content writer. Analyze the following content item metadata and AI summarization context to generate a highly viral, high-conversion growth recommendation for marketing/growth teams.
+
+Source Content Title: {{TITLE}}
+Source Content Author: {{AUTHOR}}
+Source Content Type: {{TYPE}}
+Source Content Category: {{CATEGORY}}
+
+AI Summary:
+{{SUMMARY}}
+
+Extracted Topics: {{TOPICS}}
+Extracted Keywords: {{KEYWORDS}}
+Target Audience: {{AUDIENCE}}
+
+Based on this content, generate growth recommendations. Return a valid JSON object matching the JSON schema below. Do not include markdown code block ticks (```json) or conversational text.
+
+Response JSON Schema:
+{
+  "suggestedTitle": "A catchy, trend-relevant title optimized for the target platform.",
+  "platform": ["LinkedIn", "Twitter", "YouTube", "Newsletter"], // select 1 or more best-fit platforms
+  "contentFormat": "Post" | "Carousel" | "Reel" | "Short" | "Article" | "Thread" | "Newsletter",
+  "hook": "A viral, hook line (first sentence) to grab attention immediately.",
+  "outline": [
+    "Outline section 1",
+    "Outline section 2",
+    "Outline section 3"
+  ],
+  "caption": "The main caption text or post draft structured professionally.",
+  "cta": "A strong, relevant Call-To-Action (e.g. Subscribe, Check it out, Comment your thoughts).",
+  "hashtags": [
+    "hashtag1",
+    "hashtag2"
+  ],
+  "opportunityScore": 0 to 100 (integer score estimating overall growth conversion opportunity),
+  "trendScore": 0 to 100 (integer score estimating how current/hot the topic is),
+  "confidenceScore": 0.0 to 1.0 (float reflecting prompt calculation confidence)
+}
