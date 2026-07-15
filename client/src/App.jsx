@@ -15,6 +15,7 @@ import AIStudio from "./pages/AIStudio.jsx";
 import YTStudio from "./pages/YTStudio.jsx";
 import Analytics from "./pages/Analytics.jsx";
 import Settings from "./pages/Settings.jsx";
+import Competitors from "./pages/Competitors.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 /**
@@ -63,6 +64,7 @@ export default function App() {
             <Route path="/content/:id" element={<ContentDetails />} />
             {/* Source Management View */}
             <Route path="/sources" element={<Sources />} />
+            <Route path="/competitors" element={<Competitors />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/settings" element={<Settings />} />
           </Route>

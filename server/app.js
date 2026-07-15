@@ -4,6 +4,7 @@ import helmet from "helmet";
 import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
 import sourceRoutes from "./routes/sourceRoutes.js";
+import competitorRoutes from "./routes/competitorRoutes.js";
 import scanRoutes from "./routes/scanRoutes.js";
 import contentRoutes from "./routes/contentRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 // Register Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/sources", sourceRoutes);
+app.use("/api/competitors", competitorRoutes);
 app.use("/api/scan", scanRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/recommendations", recommendationRoutes);

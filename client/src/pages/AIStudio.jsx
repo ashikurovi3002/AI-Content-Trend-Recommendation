@@ -23,6 +23,11 @@ export default function AIStudio() {
   const [chatHistory, setChatHistory] = useState([]);
   const [copied, setCopied] = useState(false);
 
+  // Competitor setup states
+  const [useCompetitorSource, setUseCompetitorSource] = useState(false);
+  const [selectedCompetitorId, setSelectedCompetitorId] = useState("");
+  const [selectedCompetitorPostId, setSelectedCompetitorPostId] = useState("");
+
   // Sync format parameter from URL query
   useEffect(() => {
     if (paramFormat) setFormat(paramFormat);
@@ -42,15 +47,69 @@ export default function AIStudio() {
     }
   });
 
+  // Load tracked competitors
+  const { data: competitorsResponse } = useQuery({
+    queryKey: ["studio-competitors"],
+    queryFn: async () => {
+      const response = await api.get("/api/competitors");
+      return response.data;
+    }
+  });
+  const competitors = competitorsResponse?.data || [];
+
+  // Load competitor posts
+  const { data: competitorPostsResponse } = useQuery({
+    queryKey: ["studio-competitor-posts"],
+    queryFn: async () => {
+      const response = await api.get("/api/competitors/posts");
+      return response.data;
+    }
+  });
+  const competitorPosts = competitorPostsResponse?.data || [];
+
   // Generate draft mutation
   const generateMutation = useMutation({
     mutationFn: async () => {
-      const response = await api.post("/api/studio/generate", {
-        contentId: selectedContentId || null,
-        format,
-        instructions
-      });
-      return response.data.data;
+      if (useCompetitorSource && selectedCompetitorPostId) {
+        const response = await api.post(`/api/competitors/posts/${selectedCompetitorPostId}/beat`);
+        const data = response.data.data;
+        const formatted = `
+# STRATEGIC CONTENT DRAFT (BEAT COMPETITOR WORKFLOW)
+
+## 🧠 Competitor Post Analysis
+- Competitor Weakness: ${data.analysis?.competitorWeakness}
+- Our Brand Advantage: ${data.analysis?.ourAdvantage}
+
+## 🎯 Upgraded Hook Copy
+${data.contentAssets?.betterHook}
+
+## 📄 Upgraded Facebook Post
+${data.contentAssets?.facebookPost || data.contentAssets?.betterCaption}
+
+## 💼 Upgraded LinkedIn Post
+${data.contentAssets?.linkedinPost}
+
+## 🐦 Upgraded Twitter/X Thread
+${Array.isArray(data.contentAssets?.twitterThread) ? data.contentAssets.twitterThread.join("\n\n---\n\n") : ""}
+
+## ✍ Upgraded SEO Blog Post
+${data.contentAssets?.blogVersion}
+
+## 🖼 AI Visual Graphic Suggestion
+${data.contentAssets?.visualIdea}
+
+## 🚀 Why It Beats Them
+${data.whyItBeatsThem}
+        `.trim();
+        return { content: formatted };
+      } else {
+        const response = await api.post("/api/studio/generate", {
+          contentId: selectedContentId || null,
+          format,
+          instructions
+        });
+        return response.data.data;
+      }
     },
     onSuccess: (data) => {
       setGeneratedDraft(data.content);
@@ -140,29 +199,90 @@ export default function AIStudio() {
               1. Choose Source & Target Format
             </h2>
 
+            {/* Competitor Intelligence Ingestion Toggle */}
+            <div className="flex items-center gap-2 pb-2">
+              <input
+                type="checkbox"
+                id="competitorToggle"
+                checked={useCompetitorSource}
+                onChange={(e) => setUseCompetitorSource(e.target.checked)}
+                className="rounded bg-zinc-950 border-zinc-850 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+              />
+              <label htmlFor="competitorToggle" className="text-xs font-bold text-zinc-300 cursor-pointer flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-400 animate-pulse" />
+                Generate from Competitor Post (Strategic Content Upgrade)
+              </label>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Select Source Dropdown */}
-              <div className="space-y-1">
-                <label className="text-[10px] text-zinc-500 uppercase font-semibold">
-                  Source Content Item
-                </label>
-                {listLoading ? (
-                  <div className="h-10 bg-zinc-950/40 border border-zinc-850 animate-pulse rounded-xl" />
-                ) : (
-                  <select
-                    value={selectedContentId}
-                    onChange={(e) => setSelectedContentId(e.target.value)}
-                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-850 rounded-xl text-xs text-zinc-300 focus:outline-none cursor-pointer"
-                  >
-                    <option value="">-- No Source Reference (Draft from scratch) --</option>
-                    {contentList.map((item) => (
-                      <option key={item._id || item.id} value={item._id || item.id}>
-                        {item.title}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
+              {!useCompetitorSource ? (
+                <div className="space-y-1">
+                  <label className="text-[10px] text-zinc-500 uppercase font-semibold">
+                    Source Content Item
+                  </label>
+                  {listLoading ? (
+                    <div className="h-10 bg-zinc-950/40 border border-zinc-850 animate-pulse rounded-xl" />
+                  ) : (
+                    <select
+                      value={selectedContentId}
+                      onChange={(e) => setSelectedContentId(e.target.value)}
+                      className="w-full h-10 px-3 bg-zinc-950 border border-zinc-850 rounded-xl text-xs text-zinc-300 focus:outline-none cursor-pointer"
+                    >
+                      <option value="">-- No Source Reference (Draft from scratch) --</option>
+                      {contentList.map((item) => (
+                        <option key={item._id || item.id} value={item._id || item.id}>
+                          {item.title}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              ) : (
+                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-zinc-500 uppercase font-semibold">
+                      Select Competitor Brand
+                    </label>
+                    <select
+                      value={selectedCompetitorId}
+                      onChange={(e) => {
+                        setSelectedCompetitorId(e.target.value);
+                        setSelectedCompetitorPostId("");
+                      }}
+                      className="w-full h-10 px-3 bg-zinc-950 border border-zinc-850 rounded-xl text-xs text-zinc-300 focus:outline-none cursor-pointer"
+                    >
+                      <option value="">-- Select Competitor --</option>
+                      {competitors.map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.brandName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-zinc-500 uppercase font-semibold">
+                      Select Competitor Post
+                    </label>
+                    <select
+                      value={selectedCompetitorPostId}
+                      onChange={(e) => setSelectedCompetitorPostId(e.target.value)}
+                      disabled={!selectedCompetitorId}
+                      className="w-full h-10 px-3 bg-zinc-950 border border-zinc-850 rounded-xl text-xs text-zinc-300 focus:outline-none cursor-pointer disabled:opacity-40"
+                    >
+                      <option value="">-- Select Post --</option>
+                      {competitorPosts
+                        .filter((p) => p.competitorId?._id === selectedCompetitorId)
+                        .map((post) => (
+                          <option key={post._id} value={post._id}>
+                            [{post.format}] {post.title.substring(0, 45)}...
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                </div>
+              )}
 
               {/* Select format */}
               <div className="space-y-1">

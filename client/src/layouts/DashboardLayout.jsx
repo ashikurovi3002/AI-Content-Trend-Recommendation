@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { 
   Globe, Menu, X, Bell, Search, LogOut, LayoutDashboard, 
   TrendingUp, FileText, Lightbulb, PenTool, BarChart3, Settings, 
-  ChevronDown, ChevronRight, PlayCircle
+  ChevronDown, ChevronRight, PlayCircle, Compass
 } from "lucide-react";
 import { useAuthStore } from "../services/authStore.js";
 
@@ -167,6 +167,20 @@ export default function DashboardLayout() {
                 </div>
               )}
             </div>
+
+            <NavLink
+              to="/competitors"
+              className={({ isActive }) =>
+                `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
+                }`
+              }
+            >
+              <Compass className="mr-3 h-5 w-5 flex-shrink-0" />
+              Competitor Intelligence
+            </NavLink>
 
             <NavLink
               to="/sources"
@@ -351,6 +365,21 @@ export default function DashboardLayout() {
             <PenTool className="mr-3 h-5 w-5" />
             AI Studio
           </NavLink>
+          <NavLink
+            to="/competitors"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <Compass className="mr-3 h-5 w-5" />
+            Competitor Intelligence
+          </NavLink>
+
           <NavLink
             to="/sources"
             onClick={() => setIsMobileMenuOpen(false)}
