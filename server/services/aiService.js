@@ -1,10 +1,23 @@
 import fs from "fs/promises";
 import path from "path";
-import axios from "axios";
+import { GoogleGenAI } from "@google/genai";
 import ContentItem from "../models/ContentItem.js";
 import Summary from "../models/Summary.js";
+import Recommendation from "../models/Recommendation.js";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+let aiClient = null;
+const getAIClient = () => {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is not defined in the environment variables");
+    }
+    aiClient = new GoogleGenAI({ apiKey });
+  }
+  return aiClient;
+};
 
 /**
  * Service to process scraped article content using Google Gemini API.
@@ -50,67 +63,67 @@ class AIService {
   }
 
   /**
-   * Makes a REST call to Google Gemini 1.5 Flash API with exponential backoff retries.
+   * Makes a call to Google Gemini 2.5 Flash API using the official SDK with exponential backoff retries.
    * @param {string} promptText - Prompt content
    * @param {number} retries - Maximum retries
    * @param {number} baseDelay - Delay multiplier in milliseconds
    * @returns {Promise<object>} Parsed JSON response
    */
-  async callGemini(promptText, retries = 5, baseDelay = 5000) {
+  async callGemini(promptText, retries = 3, baseDelay = 3000) {
     console.log("Prompt length:", promptText.length);
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not defined in the environment variables");
-    }
-
-    const url =
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-    const payload = {
-      contents: [
-        {
-          parts: [{ text: promptText }]
-        }
-      ],
-      generationConfig: {
-        responseMimeType: "application/json"
-      }
-    };
+    const ai = getAIClient();
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const response = await axios.post(url, payload, {
-          timeout: 60000,
-          headers: {
-            "Content-Type": "application/json",
-            "X-goog-api-key": apiKey
-          }
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: promptText,
+          config: {
+            responseMimeType: "application/json",
+            temperature: 0.3,
+          },
         });
-        const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        let text = response.text;
 
         if (!text) {
-          throw new Error("Received empty response candidate from Gemini model");
+          throw new Error("Gemini returned an empty response.");
         }
 
-        // Clean json blocks if they were wrapped in markdown tick tags despite config
-        const cleanedText = text
+        text = text
           .replace(/^```json/, "")
           .replace(/```$/, "")
           .trim();
 
-        const parsedJson = JSON.parse(cleanedText);
-        return parsedJson;
+        return JSON.parse(text);
       } catch (error) {
-        console.warn(`⚠️ Gemini API request attempt ${attempt} failed: ${error.message}`);
+        console.error(`⚠️ Gemini API request attempt ${attempt} failed:`, error.message || error);
+        if (error.status) console.log("Status:", error.status);
+        if (error.errorDetails) console.log("Details:", JSON.stringify(error.errorDetails, null, 2));
 
-        const isRateLimit = error.response?.status === 429;
         if (attempt === retries) {
           throw error;
         }
 
-        // Exponential backoff delay
-        const backoffDelay = isRateLimit ? baseDelay * 3 * attempt : baseDelay * attempt;
-        console.log(`⏰ Retrying Gemini call in ${backoffDelay}ms...`);
-        await sleep(backoffDelay);
+        let delay = baseDelay * attempt;
+
+        // Try to parse dynamic retry delay recommended by Google's RetryInfo metadata
+        const details = error.errorDetails || error.details;
+        if (details && Array.isArray(details)) {
+          const retryInfo = details.find(
+            (d) => d["@type"]?.includes("RetryInfo") || d["type"]?.includes("RetryInfo")
+          );
+          if (retryInfo && retryInfo.retryDelay) {
+            const seconds = parseFloat(retryInfo.retryDelay);
+            if (!isNaN(seconds)) {
+              delay = seconds * 1000;
+              console.log(`⏰ Google API requested a specific backoff delay: ${retryInfo.retryDelay} -> parsed to ${delay}ms`);
+            }
+          }
+        }
+
+        console.log(`⏰ Retrying Gemini call in ${delay}ms...`);
+        await sleep(delay);
       }
     }
   }
@@ -123,7 +136,9 @@ class AIService {
   async processContentItem(contentItemId) {
     console.log(`🧠 AI Processing triggered for content: ${contentItemId}`);
 
-    const contentItem = await ContentItem.findById(contentItemId);
+    console.log(`🧠 AI Processing triggered for content: ${contentItemId}`);
+
+    const contentItem = await ContentItem.findById(contentItemId).populate("sourceId");
     if (!contentItem) {
       throw new Error(`ContentItem not found: ${contentItemId}`);
     }
@@ -138,7 +153,7 @@ class AIService {
 
       // 2. Load prompts from filesystem (never hardcode prompts)
       const promptDir = path.join(process.cwd(), "prompts");
-      const summarizePromptTpl = await fs.readFile(path.join(promptDir, "summarize.txt"), "utf8");
+      const analyzePromptTpl = await fs.readFile(path.join(promptDir, "analyze_content.txt"), "utf8");
 
       let finalAnalysisJson = null;
 
@@ -148,9 +163,12 @@ class AIService {
       if (chunks.length <= 1) {
         console.log("👉 Single chunk processing...");
         // Replace templates
-        const prompt = summarizePromptTpl
+        const prompt = analyzePromptTpl
           .replace("{{TITLE}}", contentItem.title)
           .replace("{{DESCRIPTION}}", contentItem.description || "")
+          .replace("{{AUTHOR}}", contentItem.author || "Unknown")
+          .replace("{{TYPE}}", contentItem.sourceId?.type || "website")
+          .replace("{{CATEGORY}}", contentItem.sourceId?.category || "general")
           .replace("{{CONTENT}}", cleaned.substring(0, 5000));
 
         finalAnalysisJson = await this.callGemini(prompt);
@@ -187,57 +205,49 @@ class AIService {
         // Reduce: Merge chunk summaries and compile final metadata report
         const consolidatedText = `Combined segment summaries:\n${chunkSummaries.join("\n\n")}\n\nMerged topics: ${Array.from(combinedTopics).join(", ")}\nMerged keywords: ${Array.from(combinedKeywords).join(", ")}`;
 
-        const finalPrompt = summarizePromptTpl
+        const finalPrompt = analyzePromptTpl
           .replace("{{TITLE}}", contentItem.title)
           .replace("{{DESCRIPTION}}", contentItem.description || "")
+          .replace("{{AUTHOR}}", contentItem.author || "Unknown")
+          .replace("{{TYPE}}", contentItem.sourceId?.type || "website")
+          .replace("{{CATEGORY}}", contentItem.sourceId?.category || "general")
           .replace("{{CONTENT}}", consolidatedText);
 
         finalAnalysisJson = await this.callGemini(finalPrompt);
       }
 
       // 4. Validate AI JSON fields & fallback defaults
-      const validated = this.validateAndNormalizeJson(finalAnalysisJson);
+      const { summaryData, recommendationData } = this.validateAndNormalizeJson(finalAnalysisJson);
 
-      // 5. Store / Save result to summaries collection (unique contentId check)
+      // 5. Store / Save Summary result
       let summaryDoc = await Summary.findOne({ contentId: contentItemId });
       if (summaryDoc) {
-        summaryDoc.summary = validated.summary;
-        summaryDoc.keyPoints = validated.keyPoints;
-        summaryDoc.keywords = validated.keywords;
-        summaryDoc.topics = validated.topics;
-        summaryDoc.audience = validated.audience;
-        summaryDoc.difficulty = validated.difficulty;
-        summaryDoc.confidenceScore = validated.confidenceScore;
+        Object.assign(summaryDoc, summaryData);
       } else {
         summaryDoc = new Summary({
           contentId: contentItemId,
-          summary: validated.summary,
-          keyPoints: validated.keyPoints,
-          keywords: validated.keywords,
-          topics: validated.topics,
-          audience: validated.audience,
-          difficulty: validated.difficulty,
-          confidenceScore: validated.confidenceScore
+          ...summaryData
         });
       }
       await summaryDoc.save();
+
+      // 6. Store / Save Recommendation result
+      let recDoc = await Recommendation.findOne({ contentId: contentItemId });
+      if (recDoc) {
+        Object.assign(recDoc, recommendationData);
+      } else {
+        recDoc = new Recommendation({
+          contentId: contentItemId,
+          ...recommendationData
+        });
+      }
+      await recDoc.save();
 
       // Mark content item completed
       contentItem.processedStatus = "completed";
       await contentItem.save();
 
-      console.log(`✅ AI Processing complete for content: ${contentItem.title}`);
-
-      // Dynamically import and trigger recommendation generation in the background to avoid ESM circular dependency
-      import("./recommendationService.js")
-        .then(({ default: recService }) => {
-          recService.generateRecommendation(contentItemId).catch((recErr) => {
-            console.error(`❌ Auto recommendation failed for ${contentItemId}: ${recErr.message}`);
-          });
-        })
-        .catch((importErr) => {
-          console.error(`❌ Failed to import recommendationService: ${importErr.message}`);
-        });
+      console.log(`✅ AI Processing & Recommendation generation complete for content: ${contentItem.title}`);
 
       return summaryDoc;
     } catch (error) {
@@ -252,41 +262,86 @@ class AIService {
   }
 
   /**
-   * Validates structure fields and provides default normalization fallbacks.
+   * Validates structure fields for both summary and recommendation, and provides default normalization fallbacks.
    * @param {object} rawJson - Parsed JSON object from Gemini API
-   * @returns {object} Validated structured object
+   * @returns {object} Validated structured object with summaryData and recommendationData
    */
   validateAndNormalizeJson(rawJson) {
-    const normalized = {};
+    const summaryData = {};
+    const recommendationData = {};
 
-    normalized.summary = typeof rawJson?.summary === "string" ? rawJson.summary : "";
+    // Validate Summary fields
+    summaryData.summary = typeof rawJson?.summary === "string" ? rawJson.summary : "";
 
-    normalized.keyPoints = Array.isArray(rawJson?.keyPoints)
+    summaryData.keyPoints = Array.isArray(rawJson?.keyPoints)
       ? rawJson.keyPoints.filter((k) => typeof k === "string")
       : [];
 
-    normalized.keywords = Array.isArray(rawJson?.keywords)
+    summaryData.keywords = Array.isArray(rawJson?.keywords)
       ? rawJson.keywords.filter((k) => typeof k === "string")
       : [];
 
-    normalized.topics = Array.isArray(rawJson?.topics)
+    summaryData.topics = Array.isArray(rawJson?.topics)
       ? rawJson.topics.filter((t) => typeof t === "string")
       : [];
 
-    normalized.audience = typeof rawJson?.audience === "string" ? rawJson.audience : "general";
+    summaryData.audience = typeof rawJson?.audience === "string" ? rawJson.audience : "general";
 
-    // Validate difficulty enum values
     const diff =
       typeof rawJson?.difficulty === "string" ? rawJson.difficulty.toLowerCase() : "beginner";
-    normalized.difficulty = ["beginner", "intermediate", "advanced"].includes(diff)
+    summaryData.difficulty = ["beginner", "intermediate", "advanced"].includes(diff)
       ? diff
       : "beginner";
 
-    // Validate confidence score bounds
     const score = Number(rawJson?.confidenceScore);
-    normalized.confidenceScore = !isNaN(score) && score >= 0 && score <= 1 ? score : 0.8;
+    summaryData.confidenceScore = !isNaN(score) && score >= 0 && score <= 1 ? score : 0.8;
 
-    return normalized;
+    // Validate Recommendation fields
+    recommendationData.suggestedTitle =
+      typeof rawJson?.suggestedTitle === "string"
+        ? rawJson.suggestedTitle.trim()
+        : "TrendPilot Content Suggestion";
+
+    recommendationData.platform = Array.isArray(rawJson?.platform)
+      ? rawJson.platform.filter((p) => typeof p === "string")
+      : ["LinkedIn"];
+
+    const format = typeof rawJson?.contentFormat === "string" ? rawJson.contentFormat : "Post";
+    recommendationData.contentFormat = [
+      "Post",
+      "Carousel",
+      "Reel",
+      "Short",
+      "Article",
+      "Thread",
+      "Newsletter"
+    ].includes(format)
+      ? format
+      : "Post";
+
+    recommendationData.hook = typeof rawJson?.hook === "string" ? rawJson.hook.trim() : "Check this out!";
+
+    recommendationData.outline = Array.isArray(rawJson?.outline)
+      ? rawJson.outline.filter((o) => typeof o === "string")
+      : [];
+
+    recommendationData.caption = typeof rawJson?.caption === "string" ? rawJson.caption.trim() : "";
+    recommendationData.cta = typeof rawJson?.cta === "string" ? rawJson.cta.trim() : "";
+
+    recommendationData.hashtags = Array.isArray(rawJson?.hashtags)
+      ? rawJson.hashtags.filter((h) => typeof h === "string")
+      : [];
+
+    const oppScore = parseInt(rawJson?.opportunityScore);
+    recommendationData.opportunityScore =
+      !isNaN(oppScore) && oppScore >= 0 && oppScore <= 100 ? oppScore : 70;
+
+    const trScore = parseInt(rawJson?.trendScore);
+    recommendationData.trendScore = !isNaN(trScore) && trScore >= 0 && trScore <= 100 ? trScore : 70;
+
+    recommendationData.confidenceScore = summaryData.confidenceScore;
+
+    return { summaryData, recommendationData };
   }
 }
 

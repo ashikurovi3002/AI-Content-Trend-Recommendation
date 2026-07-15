@@ -17,6 +17,13 @@ class RecommendationService {
   async generateRecommendation(contentItemId) {
     console.log(`💡 Generating recommendation for content item: ${contentItemId}`);
 
+    // Check if recommendation already exists to prevent duplicate Gemini calls
+    const existingRec = await Recommendation.findOne({ contentId: contentItemId });
+    if (existingRec) {
+      console.log(`💡 Recommendation already exists for: ${contentItemId}. Skipping Gemini API call.`);
+      return existingRec;
+    }
+
     const contentItem = await ContentItem.findById(contentItemId).populate("sourceId");
     if (!contentItem) {
       throw new Error(`ContentItem not found: ${contentItemId}`);

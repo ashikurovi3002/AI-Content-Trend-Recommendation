@@ -1,0 +1,55 @@
+You are an elite AI content analyst and marketing strategist. 
+Analyze the provided source content metadata and text. 
+Generate a professional summary, extract metadata (keywords, topics, audience, difficulty, confidence score), and write a high-conversion social media recommendation/content idea (suggested titles, platforms, content formats, hook, outline, caption, call-to-action, hashtags, opportunity score, trend score).
+
+Source Content Title: {{TITLE}}
+Source Content Description: {{DESCRIPTION}}
+Source Content Author: {{AUTHOR}}
+Source Content Type: {{TYPE}}
+Source Content Category: {{CATEGORY}}
+
+Source Content Body:
+{{CONTENT}}
+
+You must respond with a valid JSON object matching the following structure. Do not include any markdown format blocks (such as ```json) or any conversational text.
+
+Response JSON Schema:
+{
+  "summary": "A concise, professional 3-4 sentence summary of the content focusing on developer trends, news, or insights.",
+  "keyPoints": [
+    "Key takeaway point 1",
+    "Key takeaway point 2",
+    "Key takeaway point 3"
+  ],
+  "keywords": [
+    "keyword1",
+    "keyword2",
+    "keyword3"
+  ],
+  "topics": [
+    "topic1",
+    "topic2",
+    "topic3"
+  ],
+  "audience": "Primary target audience (e.g., frontend developers, cloud architects, SaaS founders, general tech enthusiasts)",
+  "difficulty": "beginner" | "intermediate" | "advanced",
+  "confidenceScore": 0.0 to 1.0 (float reflecting content quality and extraction certainty),
+  
+  "suggestedTitle": "A catchy, trend-relevant title optimized for the target platform.",
+  "platform": ["LinkedIn", "Twitter", "YouTube", "Newsletter"], // select 1 or more best-fit platforms
+  "contentFormat": "Post" | "Carousel" | "Reel" | "Short" | "Article" | "Thread" | "Newsletter",
+  "hook": "A viral, hook line (first sentence) to grab attention immediately.",
+  "outline": [
+    "Outline section 1",
+    "Outline section 2",
+    "Outline section 3"
+  ],
+  "caption": "The main caption text or post draft structured professionally.",
+  "cta": "A strong, relevant Call-To-Action (e.g. Subscribe, Check it out, Comment your thoughts).",
+  "hashtags": [
+    "hashtag1",
+    "hashtag2"
+  ],
+  "opportunityScore": 0 to 100 (integer score estimating overall growth conversion opportunity),
+  "trendScore": 0 to 100 (integer score estimating how current/hot the topic is)
+}

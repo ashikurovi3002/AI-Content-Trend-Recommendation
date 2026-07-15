@@ -9,8 +9,12 @@ dotenv.config();
 // Connect to Database
 connectDB();
 
-// Initialize scheduler
-initScheduler();
+// Initialize scheduler conditionally
+if (process.env.ENABLE_SCHEDULER === "true") {
+  initScheduler();
+} else {
+  console.log("⏰ Background Ingestion Scheduler is disabled (ENABLE_SCHEDULER=false)");
+}
 
 // Port settings
 const PORT = process.env.PORT || 5000;

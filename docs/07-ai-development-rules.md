@@ -138,7 +138,7 @@ Do not create unnecessary folders.
 Use only
 
 ```
-@google/generative-ai
+@google/genai
 ```
 
 Store prompts inside

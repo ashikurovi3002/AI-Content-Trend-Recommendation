@@ -195,7 +195,7 @@ class YoutubeService {
       params: {
         part: "snippet",
         playlistId: uploadsPlaylistId,
-        maxResults: 10,
+        maxResults: 3,
         key: apiKey
       }
     });
