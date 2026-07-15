@@ -99,5 +99,24 @@ export const useAuthStore = create((set, get) => ({
         isLoading: false
       });
     }
+  },
+
+  /**
+   * Update user profile settings (including name, email, geminiApiKey).
+   */
+  updateProfile: async (profileData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await authService.updateProfile(profileData);
+      set({
+        user: response.data,
+        isLoading: false
+      });
+      return true;
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Failed to update profile settings.";
+      set({ isLoading: false, error: errorMsg });
+      throw new Error(errorMsg);
+    }
   }
 }));

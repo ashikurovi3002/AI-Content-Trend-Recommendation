@@ -9,8 +9,8 @@ export const validateCreateSource = (req, res, next) => {
     errors.name = "Source name is required";
   }
 
-  if (!type || !["website", "youtube"].includes(type)) {
-    errors.type = "Source type must be either 'website' or 'youtube'";
+  if (!type || !["website", "youtube", "facebook"].includes(type)) {
+    errors.type = "Source type must be 'website', 'youtube', or 'facebook'";
   }
 
   const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .@+-]*)*\/?$/;
@@ -44,8 +44,8 @@ export const validateUpdateSource = (req, res, next) => {
     errors.name = "Source name cannot be empty";
   }
 
-  if (type !== undefined && !["website", "youtube"].includes(type)) {
-    errors.type = "Source type must be either 'website' or 'youtube'";
+  if (type !== undefined && !["website", "youtube", "facebook"].includes(type)) {
+    errors.type = "Source type must be 'website', 'youtube', or 'facebook'";
   }
 
   const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .@+-]*)*\/?$/;

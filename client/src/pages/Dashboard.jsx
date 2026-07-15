@@ -10,10 +10,13 @@ import {
   Activity,
   AlertTriangle,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Facebook,
+  Video
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import dashboardService from "../services/dashboardService.js";
+import { useAuthStore } from "../services/authStore.js";
 import api from "../services/api.js";
 
 // Customized Tooltip for Recharts
@@ -98,7 +101,14 @@ export default function Dashboard() {
     }
   });
 
+  const { user } = useAuthStore();
+
   const handleManualScan = () => {
+    if (!user?.geminiApiKey) {
+      alert("⚠️ Gemini API Key is missing! Please configure your Google Gemini API Key in Settings first to run scans.");
+      navigate("/settings");
+      return;
+    }
     scanMutation.mutate();
   };
 
@@ -418,7 +428,14 @@ export default function Dashboard() {
                   <div className="truncate space-y-1">
                     <p className="text-sm font-semibold text-zinc-200 truncate">{item.title}</p>
                     <div className="flex items-center gap-2 text-[10px] text-zinc-500">
-                      <span className="text-zinc-400 font-semibold">{item.source?.name}</span>
+                      {item.sourceId?.type === "facebook" ? (
+                        <Facebook className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
+                      ) : item.sourceId?.type === "youtube" ? (
+                        <Video className="h-3.5 w-3.5 text-rose-500 flex-shrink-0" />
+                      ) : (
+                        <Globe className="h-3.5 w-3.5 text-indigo-400 flex-shrink-0" />
+                      )}
+                      <span className="text-zinc-400 font-semibold">{item.source?.name || item.sourceId?.name}</span>
                       <span>•</span>
                       <span>{new Date(item.publishedAt).toLocaleDateString()}</span>
                     </div>

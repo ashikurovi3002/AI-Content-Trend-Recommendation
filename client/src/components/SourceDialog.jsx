@@ -7,9 +7,17 @@ import { X, Loader2 } from "lucide-react";
 // Form validation schema using Zod
 const sourceSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters long"),
-  type: z.enum(["website", "youtube"]),
+  type: z.enum(["website", "youtube", "facebook"]),
   url: z.string().url("Please enter a valid URL (e.g., https://example.com/feed)"),
   category: z.string().min(2, "Category must be at least 2 characters long")
+}).superRefine((data, ctx) => {
+  if (data.type === "facebook" && !data.url.toLowerCase().includes("facebook.com")) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Please enter a valid Facebook Page URL (e.g. https://www.facebook.com/programmingHero)",
+      path: ["url"]
+    });
+  }
 });
 
 /**
@@ -26,11 +34,14 @@ export default function SourceDialog({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors }
   } = useForm({
     resolver: zodResolver(sourceSchema),
     defaultValues: { name: "", type: "website", url: "", category: "" }
   });
+
+  const selectedType = watch("type", "website");
 
   // Reset form values when source changes (e.g., when opening for editing vs adding)
   useEffect(() => {
@@ -98,6 +109,7 @@ export default function SourceDialog({
             >
               <option value="website">Website / RSS Feed</option>
               <option value="youtube">YouTube Channel</option>
+              <option value="facebook">Facebook Page</option>
             </select>
           </div>
 
@@ -108,7 +120,13 @@ export default function SourceDialog({
             </label>
             <input
               type="text"
-              placeholder="e.g., https://vercel.com/blog/feed"
+              placeholder={
+                selectedType === "facebook"
+                  ? "https://www.facebook.com/programmingHero"
+                  : selectedType === "youtube"
+                    ? "e.g., https://youtube.com/@programmingHero"
+                    : "e.g., https://vercel.com/blog/feed"
+              }
               disabled={isLoading}
               className={`w-full h-10 px-3 rounded-xl bg-zinc-950 border text-sm text-zinc-100 placeholder-zinc-800 focus:outline-none focus:border-indigo-500 transition-colors ${
                 errors.url ? "border-rose-500" : "border-zinc-800"

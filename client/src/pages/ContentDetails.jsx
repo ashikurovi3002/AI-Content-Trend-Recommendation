@@ -173,7 +173,9 @@ export default function ContentDetails() {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div className="space-y-1">
-                    <span className="text-zinc-500 text-xs">Author</span>
+                    <span className="text-zinc-500 text-xs">
+                      {content.sourceId?.type === "facebook" ? "Facebook Page Name" : "Author"}
+                    </span>
                     <p className="text-zinc-300 font-medium">{content.author || "Unknown"}</p>
                   </div>
                   <div className="space-y-1">
@@ -187,7 +189,9 @@ export default function ContentDetails() {
                     <p className="text-zinc-300 font-medium uppercase">{content.sourceId?.type || "website"}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-zinc-500 text-xs">Original URL</span>
+                    <span className="text-zinc-500 text-xs">
+                      {content.sourceId?.type === "facebook" ? "Original Post Link" : "Original URL"}
+                    </span>
                     <p className="text-indigo-400 font-medium truncate">
                       <a href={content.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
                         {content.url}

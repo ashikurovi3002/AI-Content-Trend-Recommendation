@@ -2,6 +2,7 @@ import cron from "node-cron";
 import Source from "../models/Source.js";
 import crawlerService from "../services/crawlerService.js";
 import youtubeService from "../services/youtubeService.js";
+import facebookService from "../services/facebookService.js";
 import aiService from "../services/aiService.js";
 
 /**
@@ -28,6 +29,8 @@ export const initScheduler = () => {
           let items = [];
           if (source.type === "youtube") {
             items = await youtubeService.crawlChannel(source._id, source.url);
+          } else if (source.type === "facebook") {
+            items = await facebookService.crawlPage(source._id, source.url);
           } else {
             items = await crawlerService.crawlSource(source._id, source.url);
           }

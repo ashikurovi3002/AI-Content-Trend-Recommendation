@@ -76,7 +76,8 @@ class AuthService {
       id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      geminiApiKey: user.geminiApiKey || ""
     };
 
     return { token, user: userProfile };
@@ -98,7 +99,37 @@ class AuthService {
       id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      geminiApiKey: user.geminiApiKey || ""
+    };
+  }
+
+  /**
+   * Update user profile details.
+   * @param {string} userId - Mongo ID of the user
+   * @param {object} updateData - Key values to change
+   * @returns {Promise<object>} Updated user profile details
+   */
+  async updateUserProfile(userId, updateData) {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error("User not found");
+      error.status = 404;
+      throw error;
+    }
+
+    if (updateData.name !== undefined) user.name = updateData.name;
+    if (updateData.email !== undefined) user.email = updateData.email;
+    if (updateData.geminiApiKey !== undefined) user.geminiApiKey = updateData.geminiApiKey;
+
+    await user.save();
+
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      geminiApiKey: user.geminiApiKey || ""
     };
   }
 }

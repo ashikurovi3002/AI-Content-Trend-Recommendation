@@ -14,8 +14,8 @@ const sourceSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["website", "youtube"],
-      required: [true, "Source type is required (website or youtube)"]
+      enum: ["website", "youtube", "facebook"],
+      required: [true, "Source type is required (website, youtube or facebook)"]
     },
     url: {
       type: String,

@@ -56,6 +56,25 @@ class AuthController {
       next(error);
     }
   }
+
+  /**
+   * Update user profile settings.
+   */
+  async updateProfile(req, res, next) {
+    try {
+      const userId = req.user.userId;
+      const { name, email, geminiApiKey } = req.body;
+      const updatedUser = await authService.updateUserProfile(userId, { name, email, geminiApiKey });
+
+      return res.status(200).json({
+        success: true,
+        message: "Profile updated successfully",
+        data: updatedUser
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new AuthController();

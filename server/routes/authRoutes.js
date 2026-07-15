@@ -14,4 +14,7 @@ router.post("/login", validateLogin, authController.login);
 // Profile route (protected)
 router.get("/profile", protect, authController.profile);
 
+// Update profile settings route (protected)
+router.put("/profile", protect, authController.updateProfile);
+
 export default router;

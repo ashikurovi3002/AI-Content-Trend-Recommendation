@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["admin", "member"],
       default: "member"
+    },
+    geminiApiKey: {
+      type: String,
+      default: ""
     }
   },
   {

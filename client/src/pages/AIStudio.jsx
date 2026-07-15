@@ -5,6 +5,7 @@ import {
   PenTool, Sparkles, Send, Copy, Download, Check, 
   FileText, ArrowLeft, RefreshCw, Cpu, Activity 
 } from "lucide-react";
+import { useAuthStore } from "../services/authStore.js";
 import api from "../services/api.js";
 
 export default function AIStudio() {
@@ -94,9 +95,25 @@ export default function AIStudio() {
     document.body.removeChild(element);
   };
 
+  const { user } = useAuthStore();
+
+  const handleGenerateClick = () => {
+    if (!user?.geminiApiKey) {
+      alert("⚠️ Gemini API Key is missing! Please configure your Google Gemini API Key in Settings first.");
+      navigate("/settings");
+      return;
+    }
+    generateMutation.mutate();
+  };
+
   const handleSendChat = (e) => {
     e.preventDefault();
     if (!chatPrompt.trim()) return;
+    if (!user?.geminiApiKey) {
+      alert("⚠️ Gemini API Key is missing! Please configure your Google Gemini API Key in Settings first.");
+      navigate("/settings");
+      return;
+    }
     refineMutation.mutate(chatPrompt);
   };
 
@@ -207,7 +224,7 @@ export default function AIStudio() {
             </div>
 
             <button
-              onClick={() => generateMutation.mutate()}
+              onClick={handleGenerateClick}
               disabled={generateMutation.isPending}
               className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-500/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >

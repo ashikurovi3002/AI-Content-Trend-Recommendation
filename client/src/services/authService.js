@@ -31,6 +31,16 @@ const authService = {
   getProfile: async () => {
     const response = await api.get("/api/auth/profile");
     return response.data;
+  },
+
+  /**
+   * Update authenticated user profile.
+   * @param {object} profileData - Updated user profile fields
+   * @returns {Promise<object>} Updated profile response
+   */
+  updateProfile: async (profileData) => {
+    const response = await api.put("/api/auth/profile", profileData);
+    return response.data;
   }
 };
 

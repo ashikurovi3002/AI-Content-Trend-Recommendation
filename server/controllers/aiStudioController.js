@@ -1,17 +1,27 @@
 import { GoogleGenAI } from "@google/genai";
 import ContentItem from "../models/ContentItem.js";
 import Summary from "../models/Summary.js";
+import User from "../models/User.js";
 
-let aiClient = null;
-const getAIClient = () => {
-  if (!aiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not defined in the environment variables");
+const getAIClient = async (userId) => {
+  let apiKey = null;
+
+  if (userId) {
+    const user = await User.findById(userId);
+    if (user && user.geminiApiKey) {
+      apiKey = user.geminiApiKey;
     }
-    aiClient = new GoogleGenAI({ apiKey });
   }
-  return aiClient;
+
+  if (!apiKey) {
+    apiKey = process.env.GEMINI_API_KEY;
+  }
+
+  if (!apiKey) {
+    throw new Error("No Gemini API Key found. Please configure your API key in Settings first.");
+  }
+
+  return new GoogleGenAI({ apiKey });
 };
 
 class AIStudioController {
@@ -98,7 +108,7 @@ Custom Creator Directives:
 Respond with ONLY the generated markdown content. Do not include markdown code block ticks (\`\`\`markdown) or any other conversational preambles/introductory comments. Return only the raw formatted text.`;
 
       console.log(`🤖 AI Studio generating ${format} draft...`);
-      const ai = getAIClient();
+      const ai = await getAIClient(req.user?.userId);
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
@@ -166,7 +176,7 @@ Refinement Directives:
 - Respond with ONLY the updated draft content. Do not include markdown block ticks or chat introductions. Return the clean text draft only.`;
 
       console.log(`🤖 AI Studio refining draft via chat...`);
-      const ai = getAIClient();
+      const ai = await getAIClient(req.user?.userId);
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,

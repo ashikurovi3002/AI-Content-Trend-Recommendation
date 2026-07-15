@@ -1,4 +1,5 @@
 import ContentItem from "../models/ContentItem.js";
+import Source from "../models/Source.js";
 import Summary from "../models/Summary.js";
 import Recommendation from "../models/Recommendation.js";
 
@@ -28,8 +29,8 @@ class ContentController {
         ];
       }
       if (type) {
-        // Look up by source parameters via Mongoose lookup or filter
-        query.type = type;
+        const sourceIds = await Source.find({ type }).distinct("_id");
+        query.sourceId = { $in: sourceIds };
       }
       if (status) {
         query.processedStatus = status;

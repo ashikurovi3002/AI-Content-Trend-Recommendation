@@ -4,19 +4,29 @@ import { GoogleGenAI } from "@google/genai";
 import ContentItem from "../models/ContentItem.js";
 import Summary from "../models/Summary.js";
 import Recommendation from "../models/Recommendation.js";
+import User from "../models/User.js";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-let aiClient = null;
-const getAIClient = () => {
-  if (!aiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not defined in the environment variables");
+const getAIClient = async (userId) => {
+  let apiKey = null;
+
+  if (userId) {
+    const user = await User.findById(userId);
+    if (user && user.geminiApiKey) {
+      apiKey = user.geminiApiKey;
     }
-    aiClient = new GoogleGenAI({ apiKey });
   }
-  return aiClient;
+
+  if (!apiKey) {
+    apiKey = process.env.GEMINI_API_KEY;
+  }
+
+  if (!apiKey) {
+    throw new Error("No Gemini API Key found. Please configure your API key in Settings first.");
+  }
+
+  return new GoogleGenAI({ apiKey });
 };
 
 /**
@@ -69,9 +79,9 @@ class AIService {
    * @param {number} baseDelay - Delay multiplier in milliseconds
    * @returns {Promise<object>} Parsed JSON response
    */
-  async callGemini(promptText, retries = 3, baseDelay = 3000) {
+  async callGemini(promptText, retries = 3, baseDelay = 3000, userId = null) {
     console.log("Prompt length:", promptText.length);
-    const ai = getAIClient();
+    const ai = await getAIClient(userId);
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
@@ -142,6 +152,7 @@ class AIService {
     if (!contentItem) {
       throw new Error(`ContentItem not found: ${contentItemId}`);
     }
+    const userId = contentItem.sourceId?.userId;
 
     // Set processing status
     contentItem.processedStatus = "processing";
@@ -171,7 +182,7 @@ class AIService {
           .replace("{{CATEGORY}}", contentItem.sourceId?.category || "general")
           .replace("{{CONTENT}}", cleaned.substring(0, 5000));
 
-        finalAnalysisJson = await this.callGemini(prompt);
+        finalAnalysisJson = await this.callGemini(prompt, 3, 3000, userId);
       } else {
         console.log(`👉 Multi-chunk processing (${chunks.length} chunks mapped)...`);
         const chunkPromptTpl = await fs.readFile(
@@ -189,7 +200,7 @@ class AIService {
             .replace("{{CONTENT}}", chunks[i]);
 
           try {
-            const chunkResult = await this.callGemini(chunkPrompt);
+            const chunkResult = await this.callGemini(chunkPrompt, 3, 3000, userId);
             if (chunkResult.summary) chunkSummaries.push(chunkResult.summary);
             if (Array.isArray(chunkResult.topics))
               chunkResult.topics.forEach((t) => combinedTopics.add(t));
@@ -213,7 +224,7 @@ class AIService {
           .replace("{{CATEGORY}}", contentItem.sourceId?.category || "general")
           .replace("{{CONTENT}}", consolidatedText);
 
-        finalAnalysisJson = await this.callGemini(finalPrompt);
+        finalAnalysisJson = await this.callGemini(finalPrompt, 3, 3000, userId);
       }
 
       // 4. Validate AI JSON fields & fallback defaults

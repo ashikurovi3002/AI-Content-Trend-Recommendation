@@ -14,7 +14,8 @@ import {
   Loader2,
   ExternalLink,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Facebook
 } from "lucide-react";
 import sourceService from "../services/sourceService.js";
 import SourceDialog from "../components/SourceDialog.jsx";
@@ -54,6 +55,9 @@ export default function Sources() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sources"] });
       setIsAddOpen(false);
+    },
+    onError: (error) => {
+      alert(error.response?.data?.message || error.message || "Failed to create source");
     }
   });
 
@@ -63,6 +67,9 @@ export default function Sources() {
       queryClient.invalidateQueries({ queryKey: ["sources"] });
       setIsEditOpen(false);
       setSelectedSource(null);
+    },
+    onError: (error) => {
+      alert(error.response?.data?.message || error.message || "Failed to update source");
     }
   });
 
@@ -196,6 +203,7 @@ export default function Sources() {
               <option value="all">All Types</option>
               <option value="website">Websites</option>
               <option value="youtube">YouTube Channels</option>
+              <option value="facebook">Facebook Pages</option>
             </select>
           </div>
 
@@ -254,7 +262,7 @@ export default function Sources() {
             <h3 className="font-bold text-zinc-200 font-heading">No sources found</h3>
             <p className="text-xs text-zinc-500 mt-1">
               {sources.length === 0
-                ? "Start adding websites or YouTube channels to begin monitoring trends."
+                ? "Start adding websites, YouTube channels, or Facebook pages to begin monitoring trends."
                 : "No sources match the selected search terms or filters."}
             </p>
           </div>
@@ -306,6 +314,11 @@ export default function Sources() {
                             <>
                               <Globe className="h-3.5 w-3.5 text-indigo-400" />
                               Website/RSS
+                            </>
+                          ) : source.type === "facebook" ? (
+                            <>
+                              <Facebook className="h-3.5 w-3.5 text-blue-500" />
+                              Facebook
                             </>
                           ) : (
                             <>

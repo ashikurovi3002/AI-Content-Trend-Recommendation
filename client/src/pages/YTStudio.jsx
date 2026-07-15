@@ -4,9 +4,22 @@ import {
   PlayCircle, Upload, Cpu, FileText, Sparkles, 
   Copy, Download, Check, AlertCircle, RefreshCw, Music 
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../services/authStore.js";
 import api from "../services/api.js";
 
 export default function YTStudio() {
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+  const handleGenerate = (format, constraints) => {
+    if (!user?.geminiApiKey) {
+      alert("⚠️ Gemini API Key is missing! Please configure your Google Gemini API Key in Settings first.");
+      navigate("/settings");
+      return;
+    }
+    generateMutation.mutate({ format, constraints });
+  };
   const [selectedVideoId, setSelectedVideoId] = useState("");
   const [subtitleText, setSubtitleText] = useState("");
   const [audioFile, setAudioFile] = useState(null);
@@ -259,7 +272,7 @@ export default function YTStudio() {
               className="w-full p-2 bg-zinc-950 border border-zinc-900 rounded-lg text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-855 resize-none"
             />
             <button
-              onClick={() => generateMutation.mutate({ format: "YT_Titles", constraints: titleConstraints })}
+              onClick={() => handleGenerate("YT_Titles", titleConstraints)}
               disabled={generateMutation.isPending || !subtitleText}
               className="h-9 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -283,7 +296,7 @@ export default function YTStudio() {
               className="w-full p-2 bg-zinc-950 border border-zinc-900 rounded-lg text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-855 resize-none"
             />
             <button
-              onClick={() => generateMutation.mutate({ format: "YT_Thumbnail", constraints: thumbnailConstraints })}
+              onClick={() => handleGenerate("YT_Thumbnail", thumbnailConstraints)}
               disabled={generateMutation.isPending || !subtitleText}
               className="h-9 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -307,7 +320,7 @@ export default function YTStudio() {
               className="w-full p-2 bg-zinc-950 border border-zinc-900 rounded-lg text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-855 resize-none"
             />
             <button
-              onClick={() => generateMutation.mutate({ format: "YT_Desc", constraints: descConstraints })}
+              onClick={() => handleGenerate("YT_Desc", descConstraints)}
               disabled={generateMutation.isPending || !subtitleText}
               className="h-9 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -331,7 +344,7 @@ export default function YTStudio() {
               className="w-full p-2 bg-zinc-950 border border-zinc-900 rounded-lg text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-855 resize-none"
             />
             <button
-              onClick={() => generateMutation.mutate({ format: "YT_Tags", constraints: tagsConstraints })}
+              onClick={() => handleGenerate("YT_Tags", tagsConstraints)}
               disabled={generateMutation.isPending || !subtitleText}
               className="h-9 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -355,7 +368,7 @@ export default function YTStudio() {
               className="w-full p-2 bg-zinc-950 border border-zinc-900 rounded-lg text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-855 resize-none"
             />
             <button
-              onClick={() => generateMutation.mutate({ format: "Facebook", constraints: fbConstraints })}
+              onClick={() => handleGenerate("Facebook", fbConstraints)}
               disabled={generateMutation.isPending || !subtitleText}
               className="h-9 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -379,7 +392,7 @@ export default function YTStudio() {
               className="w-full p-2 bg-zinc-950 border border-zinc-900 rounded-lg text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-855 resize-none"
             />
             <button
-              onClick={() => generateMutation.mutate({ format: "YT_Timestamps", constraints: timestampConstraints })}
+              onClick={() => handleGenerate("YT_Timestamps", timestampConstraints)}
               disabled={generateMutation.isPending || !subtitleText}
               className="h-9 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >

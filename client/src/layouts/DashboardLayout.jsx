@@ -443,6 +443,29 @@ export default function DashboardLayout() {
           </div>
         </header>
 
+        {/* API Key Missing Warning Banner */}
+        {!user?.geminiApiKey && (
+          <div className="mx-6 md:mx-8 mt-6 p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-between gap-4 text-left">
+            <div className="flex items-center gap-3">
+              <span className="text-xl">⚠️</span>
+              <div>
+                <h4 className="font-bold text-amber-500 text-xs uppercase tracking-wide">
+                  Gemini API Key Missing
+                </h4>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  You must configure your own Google Gemini API Key to enable automated trend scanning and creative AI drafting.
+                </p>
+              </div>
+            </div>
+            <NavLink
+              to="/settings"
+              className="flex-shrink-0 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-zinc-955 hover:text-zinc-955 font-bold text-[10px] rounded-lg transition-colors uppercase tracking-wider"
+            >
+              Configure Now
+            </NavLink>
+          </div>
+        )}
+
         {/* Dynamic Page Content */}
         <main className="flex-1 py-8 px-6 md:px-8 max-w-7xl mx-auto w-full">
           <Outlet />
