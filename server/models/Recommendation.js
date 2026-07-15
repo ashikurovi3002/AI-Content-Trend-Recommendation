@@ -60,7 +60,22 @@ const recommendationSchema = new mongoose.Schema(
       min: 0,
       max: 1,
       default: 0.8
-    }
+    },
+    competitorAnalysis: {
+      viralFactors: { type: String, default: "" },
+      missedOpportunities: { type: String, default: "" },
+      beatStrategy: { type: String, default: "" }
+    },
+    platformStrategy: [
+      {
+        platform: { type: String, required: true },
+        hook: { type: String, default: "" },
+        format: { type: String, default: "" },
+        estimatedReach: { type: String, default: "Medium" },
+        bestTime: { type: String, default: "" },
+        captionDraft: { type: String, default: "" }
+      }
+    ]
   },
   {
     timestamps: true

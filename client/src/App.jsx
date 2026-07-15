@@ -7,6 +7,14 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Sources from "./pages/Sources.jsx";
+import Trends from "./pages/Trends.jsx";
+import ContentLibrary from "./pages/ContentLibrary.jsx";
+import Recommendations from "./pages/Recommendations.jsx";
+import ContentDetails from "./pages/ContentDetails.jsx";
+import AIStudio from "./pages/AIStudio.jsx";
+import YTStudio from "./pages/YTStudio.jsx";
+import Analytics from "./pages/Analytics.jsx";
+import Settings from "./pages/Settings.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 /**
@@ -34,8 +42,16 @@ export default function App() {
           <Route element={<DashboardLayout />}>
             {/* Overview Dashboard View */}
             <Route path="/" element={<Dashboard />} />
+            <Route path="/trends" element={<Trends />} />
+            <Route path="/library" element={<ContentLibrary />} />
+            <Route path="/recommendations" element={<Recommendations />} />
+            <Route path="/studio" element={<AIStudio />} />
+            <Route path="/youtube-studio" element={<YTStudio />} />
+            <Route path="/content/:id" element={<ContentDetails />} />
             {/* Source Management View */}
             <Route path="/sources" element={<Sources />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
         </Route>
       </Routes>

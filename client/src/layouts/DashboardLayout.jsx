@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Globe, Menu, X, Bell, Search, LogOut, LayoutDashboard } from "lucide-react";
+import { 
+  Globe, Menu, X, Bell, Search, LogOut, LayoutDashboard, 
+  TrendingUp, FileText, Lightbulb, PenTool, BarChart3, Settings, 
+  ChevronDown, ChevronRight, PlayCircle
+} from "lucide-react";
 import { useAuthStore } from "../services/authStore.js";
 
 /**
@@ -8,6 +12,7 @@ import { useAuthStore } from "../services/authStore.js";
  */
 export default function DashboardLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isStudioOpen, setIsStudioOpen] = useState(true);
   const { logout, user } = useAuthStore();
   const navigate = useNavigate();
 
@@ -44,8 +49,125 @@ export default function DashboardLayout() {
               }
             >
               <LayoutDashboard className="mr-3 h-5 w-5 flex-shrink-0" />
-              Overview
+              Dashboard
             </NavLink>
+
+            <NavLink
+              to="/trends"
+              className={({ isActive }) =>
+                `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
+                }`
+              }
+            >
+              <TrendingUp className="mr-3 h-5 w-5 flex-shrink-0" />
+              Trends
+            </NavLink>
+
+            <NavLink
+              to="/library"
+              className={({ isActive }) =>
+                `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
+                }`
+              }
+            >
+              <FileText className="mr-3 h-5 w-5 flex-shrink-0" />
+              Content Library
+            </NavLink>
+
+            <NavLink
+              to="/recommendations"
+              className={({ isActive }) =>
+                `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
+                }`
+              }
+            >
+              <Lightbulb className="mr-3 h-5 w-5 flex-shrink-0" />
+              Recommendations
+            </NavLink>
+
+            <NavLink
+              to="/youtube-studio"
+              className={({ isActive }) =>
+                `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
+                }`
+              }
+            >
+              <PlayCircle className="mr-3 h-5 w-5 flex-shrink-0 text-red-500" />
+              YouTube Studio
+            </NavLink>
+
+            {/* AI Studio Collapsible menu */}
+            <div>
+              <button
+                onClick={() => setIsStudioOpen(!isStudioOpen)}
+                className="w-full group flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100 text-left"
+              >
+                <div className="flex items-center">
+                  <PenTool className="mr-3 h-5 w-5 flex-shrink-0" />
+                  <span>AI Studio</span>
+                </div>
+                {isStudioOpen ? <ChevronDown className="h-4 w-4 text-zinc-500" /> : <ChevronRight className="h-4 w-4 text-zinc-500" />}
+              </button>
+              {isStudioOpen && (
+                <div className="mt-1 ml-5 pl-3 border-l border-zinc-800 space-y-1">
+                  <NavLink
+                    to="/studio?format=Generate_Everything"
+                    className="block px-3 py-1.5 text-xs text-indigo-400 hover:text-indigo-350 font-bold rounded-lg transition-colors"
+                  >
+                    ✨ Generate Everything
+                  </NavLink>
+                  <NavLink
+                    to="/studio?format=Facebook"
+                    className="block px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded-lg transition-colors"
+                  >
+                    • Facebook Post
+                  </NavLink>
+                  <NavLink
+                    to="/studio?format=LinkedIn"
+                    className="block px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded-lg transition-colors"
+                  >
+                    • LinkedIn Post
+                  </NavLink>
+                  <NavLink
+                    to="/studio?format=Twitter"
+                    className="block px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded-lg transition-colors"
+                  >
+                    • Twitter Thread
+                  </NavLink>
+                  <NavLink
+                    to="/studio?format=Blog"
+                    className="block px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded-lg transition-colors"
+                  >
+                    • Blog Article
+                  </NavLink>
+                  <NavLink
+                    to="/studio?format=YouTube"
+                    className="block px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded-lg transition-colors"
+                  >
+                    • YouTube Script
+                  </NavLink>
+                  <NavLink
+                    to="/studio"
+                    className="block px-3 py-1.5 text-xs text-zinc-500 hover:text-zinc-350 rounded-lg transition-colors font-medium"
+                  >
+                    • More Creator Tools...
+                  </NavLink>
+                </div>
+              )}
+            </div>
+
             <NavLink
               to="/sources"
               className={({ isActive }) =>
@@ -58,6 +180,34 @@ export default function DashboardLayout() {
             >
               <Globe className="mr-3 h-5 w-5 flex-shrink-0" />
               Sources
+            </NavLink>
+
+            <NavLink
+              to="/analytics"
+              className={({ isActive }) =>
+                `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
+                }`
+              }
+            >
+              <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
+              Analytics
+            </NavLink>
+
+            <NavLink
+              to="/settings"
+              className={({ isActive }) =>
+                `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
+                }`
+              }
+            >
+              <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
+              Settings
             </NavLink>
           </nav>
         </div>
@@ -129,7 +279,77 @@ export default function DashboardLayout() {
             }
           >
             <LayoutDashboard className="mr-3 h-5 w-5" />
-            Overview
+            Dashboard
+          </NavLink>
+          <NavLink
+            to="/trends"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <TrendingUp className="mr-3 h-5 w-5" />
+            Trends
+          </NavLink>
+          <NavLink
+            to="/library"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <FileText className="mr-3 h-5 w-5" />
+            Content Library
+          </NavLink>
+          <NavLink
+            to="/recommendations"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <Lightbulb className="mr-3 h-5 w-5" />
+            Recommendations
+          </NavLink>
+          <NavLink
+            to="/youtube-studio"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <PlayCircle className="mr-3 h-5 w-5 text-red-500" />
+            YouTube Studio
+          </NavLink>
+          <NavLink
+            to="/studio"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <PenTool className="mr-3 h-5 w-5" />
+            AI Studio
           </NavLink>
           <NavLink
             to="/sources"
@@ -144,6 +364,34 @@ export default function DashboardLayout() {
           >
             <Globe className="mr-3 h-5 w-5" />
             Sources
+          </NavLink>
+          <NavLink
+            to="/analytics"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <BarChart3 className="mr-3 h-5 w-5" />
+            Analytics
+          </NavLink>
+          <NavLink
+            to="/settings"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                isActive
+                  ? "bg-indigo-600 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`
+            }
+          >
+            <Settings className="mr-3 h-5 w-5" />
+            Settings
           </NavLink>
         </nav>
 

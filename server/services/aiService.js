@@ -341,6 +341,25 @@ class AIService {
 
     recommendationData.confidenceScore = summaryData.confidenceScore;
 
+    // Validate competitorAnalysis fields
+    recommendationData.competitorAnalysis = {
+      viralFactors: typeof rawJson?.competitorAnalysis?.viralFactors === "string" ? rawJson.competitorAnalysis.viralFactors : "",
+      missedOpportunities: typeof rawJson?.competitorAnalysis?.missedOpportunities === "string" ? rawJson.competitorAnalysis.missedOpportunities : "",
+      beatStrategy: typeof rawJson?.competitorAnalysis?.beatStrategy === "string" ? rawJson.competitorAnalysis.beatStrategy : ""
+    };
+
+    // Validate platformStrategy array
+    recommendationData.platformStrategy = Array.isArray(rawJson?.platformStrategy)
+      ? rawJson.platformStrategy.map((ps) => ({
+          platform: typeof ps?.platform === "string" ? ps.platform : "LinkedIn",
+          hook: typeof ps?.hook === "string" ? ps.hook : "",
+          format: typeof ps?.format === "string" ? ps.format : "Post",
+          estimatedReach: ["Low", "Medium", "High"].includes(ps?.estimatedReach) ? ps.estimatedReach : "Medium",
+          bestTime: typeof ps?.bestTime === "string" ? ps.bestTime : "",
+          captionDraft: typeof ps?.captionDraft === "string" ? ps.captionDraft : ""
+        }))
+      : [];
+
     return { summaryData, recommendationData };
   }
 }

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Globe,
   CheckCircle,
@@ -32,6 +33,7 @@ const CustomTooltip = ({ active, payload }) => {
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Queries
   const {
@@ -257,9 +259,13 @@ export default function Dashboard() {
                     tickLine={false}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(39, 39, 42, 0.3)" }} />
-                  <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                  <Bar dataKey="count" radius={[6, 6, 0, 0]} className="cursor-pointer">
                     {trends.topTopics.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#4f46e5" : "#6366f1"} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={index % 2 === 0 ? "#4f46e5" : "#6366f1"}
+                        onClick={() => navigate(`/trends?topic=${encodeURIComponent(entry.topic)}`)}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -345,7 +351,8 @@ export default function Dashboard() {
               {recommendations.map((rec) => (
                 <div
                   key={rec.id}
-                  className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/40 hover:border-zinc-800 transition-colors flex items-center justify-between gap-4"
+                  onClick={() => navigate(`/content/${rec.contentId?._id || rec.contentId}`)}
+                  className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/40 hover:border-indigo-500/50 hover:bg-zinc-900/30 transition-all flex items-center justify-between gap-4 cursor-pointer"
                 >
                   <div className="space-y-1 truncate">
                     <p className="text-sm font-semibold text-zinc-200 truncate">
@@ -404,8 +411,9 @@ export default function Dashboard() {
             <div className="space-y-3">
               {content.map((item) => (
                 <div
-                  key={item.id}
-                  className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/40 hover:border-zinc-800 transition-colors flex items-center justify-between gap-4"
+                  key={item.id || item._id}
+                  onClick={() => navigate(`/content/${item.id || item._id}`)}
+                  className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/40 hover:border-indigo-500/50 hover:bg-zinc-900/30 transition-all flex items-center justify-between gap-4 cursor-pointer"
                 >
                   <div className="truncate space-y-1">
                     <p className="text-sm font-semibold text-zinc-200 truncate">{item.title}</p>

@@ -1,31 +1,42 @@
 import dotenv from "dotenv";
-import fs from "fs/promises";
-import path from "path";
-import aiService from "../services/aiService.js";
+import { GoogleGenAI } from "@google/genai";
 
-// Load environment variables
 dotenv.config();
 
 const testGemini = async () => {
   try {
-    console.log("🚀 Testing Combined Summary + Recommendation Gemini API integration via @google/genai...");
+    console.log("🚀 Testing Creator Studio 'Generate Everything' tool via @google/genai...");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is not defined in the environment variables");
+    }
     
-    const promptDir = path.join(process.cwd(), "prompts");
-    const template = await fs.readFile(path.join(promptDir, "analyze_content.txt"), "utf8");
+    const ai = new GoogleGenAI({ apiKey });
     
-    const prompt = template
-      .replace("{{TITLE}}", "How to Build a Successful AI Startup in 2026")
-      .replace("{{DESCRIPTION}}", "A comprehensive guide on launching artificial intelligence companies in the modern tech ecosystem.")
-      .replace("{{AUTHOR}}", "John Doe")
-      .replace("{{TYPE}}", "website")
-      .replace("{{CATEGORY}}", "tech")
-      .replace("{{CONTENT}}", "Building an AI startup in 2026 requires understanding the shifts in foundational models, the cost of compute, and how to create proprietary workflow value. Founders must focus on distribution and integration rather than raw model training. Leveraging next-gen tools allows developers to assemble state-of-the-art products rapidly.");
+    const prompt = `You are a world-class creator. Write a Content Kit in the format of: Generate_Everything.
+Source: "Claude Code is a command line tool that helps developers write, edit, and audit code inside their local terminals."
 
-    const result = await aiService.callGemini(prompt);
-    console.log("✅ Success! Response received from Gemini:");
-    console.log(JSON.stringify(result, null, 2));
+Please compile the following assets separated by headers:
+- 3 Viral Titles
+- 3 Thumbnail Text options
+- A YouTube description
+- A brief Facebook Post draft
+- A Twitter thread (tweets separated by '---')
+
+Return ONLY the markdown text.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        temperature: 0.7
+      }
+    });
+
+    console.log("✅ Success! Generated master content kit:");
+    console.log(response.text);
   } catch (error) {
-    console.error("❌ Failed to contact Gemini API:", error);
+    console.error("❌ Failed to run studio generation:", error);
   }
 };
 

@@ -1,5 +1,6 @@
 import ContentItem from "../models/ContentItem.js";
 import Summary from "../models/Summary.js";
+import Recommendation from "../models/Recommendation.js";
 
 /**
  * Controller to handle content lists and detailed summaries retrieval.
@@ -74,15 +75,17 @@ class ContentController {
         throw error;
       }
 
-      // Fetch summary
+      // Fetch summary & recommendation
       const summary = await Summary.findOne({ contentId });
+      const recommendation = await Recommendation.findOne({ contentId });
 
       return res.status(200).json({
         success: true,
         message: "Content details retrieved successfully",
         data: {
           content: contentItem,
-          analysis: summary || null
+          analysis: summary || null,
+          recommendation: recommendation || null
         }
       });
     } catch (error) {
