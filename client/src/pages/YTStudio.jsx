@@ -135,9 +135,6 @@ export default function YTStudio() {
             <PlayCircle className="h-8 w-8 text-red-500" />
             YouTube Studio
           </h1>
-          <p className="text-zinc-500 mt-1 text-xs">
-            Developed by Jubayer Ahmad & Antigravity
-          </p>
         </div>
       </div>
 
