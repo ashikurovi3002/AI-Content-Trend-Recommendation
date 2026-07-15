@@ -68,7 +68,6 @@ const recommendationSchema = new mongoose.Schema(
 );
 
 // Indexes
-recommendationSchema.index({ contentId: 1 }, { unique: true });
 recommendationSchema.index({ platform: 1 });
 recommendationSchema.index({ opportunityScore: -1 });
 

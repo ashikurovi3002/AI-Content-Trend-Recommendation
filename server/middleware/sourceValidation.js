@@ -13,7 +13,7 @@ export const validateCreateSource = (req, res, next) => {
     errors.type = "Source type must be either 'website' or 'youtube'";
   }
 
-  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .@+-]*)*\/?$/;
   if (!url || typeof url !== "string" || !urlRegex.test(url)) {
     errors.url = "A valid source URL is required (e.g., https://example.com)";
   }
@@ -48,7 +48,7 @@ export const validateUpdateSource = (req, res, next) => {
     errors.type = "Source type must be either 'website' or 'youtube'";
   }
 
-  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .@+-]*)*\/?$/;
   if (url !== undefined && (typeof url !== "string" || !urlRegex.test(url))) {
     errors.url = "Please provide a valid source URL";
   }

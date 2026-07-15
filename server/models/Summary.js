@@ -45,7 +45,6 @@ const summarySchema = new mongoose.Schema(
 );
 
 // Indexes
-summarySchema.index({ contentId: 1 }, { unique: true });
 summarySchema.index({ topics: 1 });
 summarySchema.index({ keywords: 1 });
 

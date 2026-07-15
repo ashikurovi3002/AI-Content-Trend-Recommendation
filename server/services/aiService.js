@@ -30,7 +30,7 @@ class AIService {
    * @param {number} overlap - Overlapping character margin
    * @returns {Array<string>} Array of text chunks
    */
-  chunkText(text, maxChars = 15000, overlap = 1500) {
+  chunkText(text, maxChars = 6000, overlap = 500) {
     const chunks = [];
     let index = 0;
 
@@ -56,13 +56,15 @@ class AIService {
    * @param {number} baseDelay - Delay multiplier in milliseconds
    * @returns {Promise<object>} Parsed JSON response
    */
-  async callGemini(promptText, retries = 3, baseDelay = 2000) {
+  async callGemini(promptText, retries = 5, baseDelay = 5000) {
+    console.log("Prompt length:", promptText.length);
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY is not defined in the environment variables");
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
     const payload = {
       contents: [
         {
@@ -76,7 +78,13 @@ class AIService {
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const response = await axios.post(url, payload, { timeout: 15000 });
+        const response = await axios.post(url, payload, {
+          timeout: 60000,
+          headers: {
+            "Content-Type": "application/json",
+            "X-goog-api-key": apiKey
+          }
+        });
         const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!text) {
@@ -135,7 +143,7 @@ class AIService {
       let finalAnalysisJson = null;
 
       // 3. Chunking check
-      const chunks = this.chunkText(cleaned, 15000, 1500);
+      const chunks = this.chunkText(cleaned, 6000, 500);
 
       if (chunks.length <= 1) {
         console.log("👉 Single chunk processing...");
@@ -143,7 +151,7 @@ class AIService {
         const prompt = summarizePromptTpl
           .replace("{{TITLE}}", contentItem.title)
           .replace("{{DESCRIPTION}}", contentItem.description || "")
-          .replace("{{CONTENT}}", cleaned);
+          .replace("{{CONTENT}}", cleaned.substring(0, 5000));
 
         finalAnalysisJson = await this.callGemini(prompt);
       } else {

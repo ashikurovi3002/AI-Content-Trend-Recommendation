@@ -55,7 +55,6 @@ const contentItemSchema = new mongoose.Schema(
 
 // Indexes (per docs/03-database-design.md)
 contentItemSchema.index({ sourceId: 1 });
-contentItemSchema.index({ externalId: 1 }, { unique: true });
 contentItemSchema.index({ publishedAt: -1 });
 
 const ContentItem = mongoose.model("ContentItem", contentItemSchema);

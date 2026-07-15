@@ -30,14 +30,19 @@ class ScanController {
           source.lastCheckedAt = new Date();
           await source.save();
 
-          // Process the items asynchronously using AI Service
-          for (const item of items) {
-            aiService.processContentItem(item._id).catch((err) => {
-              console.error(
-                `❌ Background AI processing failed for content ${item._id}: ${err.message}`
-              );
-            });
-          }
+          // Process the items sequentially in the background to respect Gemini rate limits
+          (async () => {
+            for (const item of items) {
+              try {
+                await aiService.processContentItem(item._id);
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+              } catch (err) {
+                console.error(
+                  `❌ Background AI processing failed for content ${item._id}: ${err.message}`
+                );
+              }
+            }
+          })();
 
           results.push({
             sourceId: source._id,
@@ -98,14 +103,19 @@ class ScanController {
       source.status = "active"; // Restore status to active if it was in error state
       await source.save();
 
-      // Process the items asynchronously using AI Service
-      for (const item of items) {
-        aiService.processContentItem(item._id).catch((err) => {
-          console.error(
-            `❌ Background AI processing failed for content ${item._id}: ${err.message}`
-          );
-        });
-      }
+      // Process the items sequentially in the background to respect Gemini rate limits
+      (async () => {
+        for (const item of items) {
+          try {
+            await aiService.processContentItem(item._id);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          } catch (err) {
+            console.error(
+              `❌ Background AI processing failed for content ${item._id}: ${err.message}`
+            );
+          }
+        }
+      })();
 
       return res.status(200).json({
         success: true,

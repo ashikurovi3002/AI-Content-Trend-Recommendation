@@ -36,14 +36,19 @@ export const initScheduler = () => {
           source.lastCheckedAt = new Date();
           await source.save();
 
-          // Process the items asynchronously using AI Service
-          for (const item of items) {
-            aiService.processContentItem(item._id).catch((err) => {
-              console.error(
-                `⏰ Ingestion background AI processing failed for content ${item._id}: ${err.message}`
-              );
-            });
-          }
+          // Process the items sequentially in the background to respect Gemini rate limits
+          (async () => {
+            for (const item of items) {
+              try {
+                await aiService.processContentItem(item._id);
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+              } catch (err) {
+                console.error(
+                  `⏰ Ingestion background AI processing failed for content ${item._id}: ${err.message}`
+                );
+              }
+            }
+          })();
 
           console.log(`⏰ Ingestion crawl completed for source: ${source.name}`);
         } catch (err) {
