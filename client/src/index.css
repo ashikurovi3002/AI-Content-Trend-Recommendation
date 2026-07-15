@@ -92,3 +92,170 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
+
+/* Light theme overrides for hardcoded zinc elements to achieve full white aesthetics */
+.light {
+  background-color: #ffffff;
+  color: #18181b;
+}
+
+.light .bg-zinc-950 {
+  background-color: #ffffff !important;
+}
+
+.light .bg-zinc-900 {
+  background-color: #f4f4f5 !important;
+}
+
+.light .bg-zinc-900\/40 {
+  background-color: rgba(244, 244, 245, 0.4) !important;
+}
+
+.light .bg-zinc-950\/40 {
+  background-color: rgba(244, 244, 245, 0.5) !important;
+}
+
+.light .bg-zinc-955\/40, .light .bg-zinc-950\/60 {
+  background-color: rgba(244, 244, 245, 0.7) !important;
+}
+
+.light .bg-zinc-900\/10 {
+  background-color: rgba(244, 244, 245, 0.3) !important;
+}
+
+.light .bg-zinc-900\/15 {
+  background-color: rgba(244, 244, 245, 0.4) !important;
+}
+
+.light .bg-zinc-900\/20 {
+  background-color: rgba(228, 228, 231, 0.4) !important;
+}
+
+.light .bg-zinc-950\/20 {
+  background-color: rgba(244, 244, 245, 0.2) !important;
+}
+
+/* Force light styling for headers and sidebars */
+.light header {
+  background-color: #ffffff !important;
+  border-color: #e4e4e7 !important;
+}
+
+.light aside {
+  background-color: #f4f4f5 !important;
+  border-color: #e4e4e7 !important;
+}
+
+/* Convert dark-indigo badges to clean light-indigo badges */
+.light .bg-indigo-950,
+.light .bg-indigo-950 *,
+.light .bg-indigo-950\/60,
+.light .bg-indigo-950\/60 *,
+.light .bg-indigo-950\/40,
+.light .bg-indigo-950\/40 * {
+  background-color: rgba(99, 102, 241, 0.1) !important;
+  color: #4f46e5 !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Convert dark-gray badges to clean light-gray badges */
+.light .bg-zinc-800,
+.light .bg-zinc-800 *,
+.light .bg-zinc-800\/40,
+.light .bg-zinc-800\/40 * {
+  background-color: rgba(113, 113, 122, 0.1) !important;
+  color: #52525b !important;
+  border-color: rgba(113, 113, 122, 0.15) !important;
+}
+
+/* High contrast text overrides for light backgrounds */
+.light .text-white,
+.light .text-zinc-50,
+.light .text-zinc-100,
+.light .text-zinc-200,
+.light .text-zinc-300,
+.light span.text-white,
+.light div.text-white,
+.light p.text-white,
+.light h1.text-white,
+.light h2.text-white,
+.light h3.text-white,
+.light h4.text-white {
+  color: #18181b !important;
+}
+
+.light .text-zinc-400,
+.light span.text-zinc-400,
+.light p.text-zinc-400,
+.light div.text-zinc-400 {
+  color: #3f3f46 !important; /* Zinc-700 */
+}
+
+.light .text-zinc-500,
+.light span.text-zinc-500,
+.light p.text-zinc-500,
+.light div.text-zinc-500 {
+  color: #52525b !important; /* Zinc-600 */
+}
+
+/* Restore white text color for primary buttons and active items */
+.light .bg-indigo-600,
+.light .bg-indigo-600 *,
+.light button[class*="bg-indigo-600"],
+.light button[class*="bg-indigo-600"] * {
+  color: #ffffff !important;
+}
+
+.light .border-zinc-800 {
+  border-color: #e4e4e7 !important;
+}
+
+.light .border-zinc-850 {
+  border-color: #e4e4e7 !important;
+}
+
+.light .border-zinc-900 {
+  border-color: #d4d4d8 !important;
+}
+
+.light .hover\:bg-zinc-800\/60:hover {
+  background-color: rgba(228, 228, 231, 0.6) !important;
+}
+
+.light .hover\:text-zinc-100:hover {
+  color: #18181b !important;
+}
+
+.light .hover\:border-zinc-800:hover {
+  border-color: #d4d4d8 !important;
+}
+
+.light .hover\:border-zinc-700:hover {
+  border-color: #a1a1aa !important;
+}
+
+.light .from-white {
+  --tw-gradient-from: #18181b !important;
+}
+
+.light .to-zinc-400 {
+  --tw-gradient-to: #52525b !important;
+}
+
+.light input, .light textarea, .light select {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+  border-color: #d4d4d8 !important;
+}
+
+.light input::placeholder, .light textarea::placeholder {
+  color: #a1a1aa !important;
+}
+
+.light ::-webkit-scrollbar-track {
+  background: #f4f4f5 !important;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #d4d4d8 !important;
+}

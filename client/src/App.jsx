@@ -26,6 +26,19 @@ export default function App() {
   // Verify token validation on mount
   useEffect(() => {
     checkAuth();
+
+    // Initialize Theme on application mount
+    const storedTheme = localStorage.getItem("theme") || "dark";
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    if (storedTheme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      if (systemTheme === "light") {
+        root.classList.add("light");
+      }
+    } else if (storedTheme === "light") {
+      root.classList.add("light");
+    }
   }, [checkAuth]);
 
   return (

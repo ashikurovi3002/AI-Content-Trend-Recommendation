@@ -5,8 +5,23 @@ import { useAuthStore } from "../services/authStore.js";
 export default function SettingsPage() {
   const { user } = useAuthStore();
   const [schedulerEnabled, setSchedulerEnabled] = useState(false);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
   const [emailAlerts, setEmailAlerts] = useState(true);
+
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme);
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    if (newTheme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      if (systemTheme === "light") {
+        root.classList.add("light");
+      }
+    } else if (newTheme === "light") {
+      root.classList.add("light");
+    }
+    localStorage.setItem("theme", newTheme);
+  };
 
   return (
     <div className="space-y-8 text-left">
@@ -124,7 +139,7 @@ export default function SettingsPage() {
                 {["dark", "light", "system"].map((t) => (
                   <button
                     key={t}
-                    onClick={() => setTheme(t)}
+                    onClick={() => handleThemeChange(t)}
                     className={`py-2 px-3 text-[10px] font-bold rounded-lg uppercase tracking-wider border transition-all cursor-pointer ${
                       theme === t
                         ? "border-indigo-500 bg-indigo-500/10 text-white font-semibold"
