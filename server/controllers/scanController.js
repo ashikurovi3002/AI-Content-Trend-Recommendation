@@ -87,10 +87,16 @@ class ScanController {
       const userId = req.user.userId;
       const sourceId = req.params.sourceId;
 
-      const source = await Source.findOne({ _id: sourceId, userId });
+      const source = await Source.findById(sourceId);
       if (!source) {
-        const error = new Error("Source not found or access denied");
+        const error = new Error("Source not found");
         error.status = 404;
+        throw error;
+      }
+
+      if (source.userId.toString() !== userId.toString()) {
+        const error = new Error("Forbidden: Access denied");
+        error.status = 403;
         throw error;
       }
 

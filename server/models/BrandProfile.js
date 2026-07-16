@@ -38,6 +38,8 @@ const brandProfileSchema = new mongoose.Schema(
   }
 );
 
+brandProfileSchema.index({ userId: 1, createdAt: -1 });
+
 const BrandProfile = mongoose.model("BrandProfile", brandProfileSchema);
 
 export default BrandProfile;

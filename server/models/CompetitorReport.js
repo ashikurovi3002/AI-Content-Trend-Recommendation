@@ -30,6 +30,7 @@ const competitorReportSchema = new mongoose.Schema(
 
 competitorReportSchema.index({ userId: 1 });
 competitorReportSchema.index({ createdAt: -1 });
+competitorReportSchema.index({ userId: 1, createdAt: -1 });
 
 const CompetitorReport = mongoose.model("CompetitorReport", competitorReportSchema);
 

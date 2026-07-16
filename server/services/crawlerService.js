@@ -4,6 +4,7 @@ import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import ContentItem from "../models/ContentItem.js";
 import Job from "../models/Job.js";
+import Source from "../models/Source.js";
 import { normalizeUrl } from "../utils/urlNormalizer.js";
 
 const rssParser = new Parser({
@@ -36,9 +37,14 @@ class CrawlerService {
   async crawlSource(sourceId, sourceUrl) {
     console.log(`📡 Starting crawling workflow for: ${sourceUrl}`);
 
+    const source = await Source.findById(sourceId);
+    if (!source) throw new Error(`Source not found: ${sourceId}`);
+    const userId = source.userId;
+
     // Create new running Job entry (per checklist item 5)
     const job = new Job({
       sourceId,
+      userId,
       status: "running",
       startedAt: new Date()
     });
@@ -50,7 +56,7 @@ class CrawlerService {
       // 1. Try RSS Feed
       try {
         console.log("👉 Attempting RSS Ingestion...");
-        items = await this.fetchRSS(sourceId, sourceUrl);
+        items = await this.fetchRSS(sourceId, sourceUrl, userId);
         if (items && items.length > 0) {
           console.log(`✅ RSS Ingestion successful. Ingested ${items.length} articles.`);
 
@@ -66,7 +72,7 @@ class CrawlerService {
       // 2. Try Sitemap Ingestion
       try {
         console.log("👉 Attempting Sitemap Ingestion...");
-        items = await this.fetchSitemap(sourceId, sourceUrl);
+        items = await this.fetchSitemap(sourceId, sourceUrl, userId);
         if (items && items.length > 0) {
           console.log(`✅ Sitemap Ingestion successful. Ingested ${items.length} articles.`);
 
@@ -83,7 +89,7 @@ class CrawlerService {
 
       // 3. Fallback to HTML Scraping
       console.log("👉 Attempting HTML Fallback Scraper Ingestion...");
-      items = await this.fetchHTMLFallback(sourceId, sourceUrl);
+      items = await this.fetchHTMLFallback(sourceId, sourceUrl, userId);
       console.log(`✅ HTML Fallback successful. Ingested ${items.length} articles.`);
 
       job.status = "completed";
@@ -106,7 +112,7 @@ class CrawlerService {
   /**
    * Fetch and parse RSS feed.
    */
-  async fetchRSS(sourceId, url) {
+  async fetchRSS(sourceId, url, userId) {
     const feed = await rssParser.parseURL(url);
     const savedItems = [];
 
@@ -128,6 +134,7 @@ class CrawlerService {
 
         const contentItem = new ContentItem({
           sourceId,
+          userId,
           externalId: normalizedUrl,
           title: entry.title || scraped.title || "Untitled Article",
           description: entry.contentSnippet || entry.summary || scraped.description || "",
@@ -152,7 +159,7 @@ class CrawlerService {
   /**
    * Fetch and parse Sitemap XML using fast-xml-parser (per checklist item 1).
    */
-  async fetchSitemap(sourceId, url, depth = 0) {
+  async fetchSitemap(sourceId, url, userId, depth = 0) {
     let sitemapUrl = url;
     if (!sitemapUrl.endsWith(".xml") && depth === 0) {
       sitemapUrl = sitemapUrl.endsWith("/")
@@ -196,7 +203,7 @@ class CrawlerService {
       // If sitemap index points to another sitemap, recursively fetch it once
       if (targetUrl.endsWith(".xml") && depth < 1) {
         try {
-          const subItems = await this.fetchSitemap(sourceId, targetUrl, depth + 1);
+          const subItems = await this.fetchSitemap(sourceId, targetUrl, userId, depth + 1);
           savedItems.push(...subItems);
         } catch {
           // ignore failures in child sitemaps
@@ -224,6 +231,7 @@ class CrawlerService {
         const scraped = await this.scrapeArticlePage(targetUrl);
         const contentItem = new ContentItem({
           sourceId,
+          userId,
           externalId: normalizedUrl,
           title: scraped.title,
           description: scraped.description,
@@ -250,7 +258,7 @@ class CrawlerService {
   /**
    * HTML Fallback scraper.
    */
-  async fetchHTMLFallback(sourceId, url) {
+  async fetchHTMLFallback(sourceId, url, userId) {
     const response = await httpClient.get(url);
     const html = response.data;
     const $ = cheerio.load(html);
@@ -293,6 +301,7 @@ class CrawlerService {
         const scraped = await this.scrapeArticlePage(targetUrl);
         const contentItem = new ContentItem({
           sourceId,
+          userId,
           externalId: normalizedUrl,
           title: scraped.title,
           description: scraped.description,

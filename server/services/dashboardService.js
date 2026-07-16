@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Source from "../models/Source.js";
 import ContentItem from "../models/ContentItem.js";
 import Summary from "../models/Summary.js";
@@ -28,9 +29,6 @@ class DashboardService {
    * @param {string} userId - Authenticated user ID
    */
   async getStats(userId) {
-    const sourceIds = await this.getUserSourceIds(userId);
-    const contentIds = await this.getUserContentIds(sourceIds);
-
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
@@ -47,16 +45,16 @@ class DashboardService {
       Source.countDocuments({ userId }),
       Source.countDocuments({ userId, status: "active" }),
       Source.countDocuments({ userId, status: "paused" }),
-      ContentItem.countDocuments({ sourceId: { $in: sourceIds } }),
+      ContentItem.countDocuments({ userId }),
       ContentItem.countDocuments({
-        sourceId: { $in: sourceIds },
+        userId,
         processedStatus: { $in: ["completed", "failed"] },
         updatedAt: { $gte: startOfToday }
       }),
-      Recommendation.countDocuments({ contentId: { $in: contentIds } }),
-      Job.countDocuments({ sourceId: { $in: sourceIds }, status: "failed" }),
+      Recommendation.countDocuments({ userId }),
+      Job.countDocuments({ userId, status: "failed" }),
       ContentItem.countDocuments({
-        sourceId: { $in: sourceIds },
+        userId,
         processedStatus: { $in: ["pending", "processing"] }
       })
     ]);
@@ -78,12 +76,11 @@ class DashboardService {
    * @param {string} userId - Authenticated user ID
    */
   async getTrends(userId) {
-    const sourceIds = await this.getUserSourceIds(userId);
-    const contentIds = await this.getUserContentIds(sourceIds);
+    const userObjectId = new mongoose.Types.ObjectId(userId);
 
     // 1. Top Topics
     const topTopics = await Summary.aggregate([
-      { $match: { contentId: { $in: contentIds } } },
+      { $match: { userId: userObjectId } },
       { $unwind: "$topics" },
       { $group: { _id: "$topics", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
@@ -93,7 +90,7 @@ class DashboardService {
 
     // 2. Top Keywords
     const topKeywords = await Summary.aggregate([
-      { $match: { contentId: { $in: contentIds } } },
+      { $match: { userId: userObjectId } },
       { $unwind: "$keywords" },
       { $group: { _id: "$keywords", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
@@ -103,7 +100,7 @@ class DashboardService {
 
     // 3. Top Categories (from Source metadata mapping)
     const topCategories = await ContentItem.aggregate([
-      { $match: { sourceId: { $in: sourceIds } } },
+      { $match: { userId: userObjectId } },
       {
         $lookup: {
           from: "sources",
@@ -121,7 +118,7 @@ class DashboardService {
 
     // 4. Opportunity Score Distribution (groups recommendations by range brackets)
     const scoreBuckets = await Recommendation.aggregate([
-      { $match: { contentId: { $in: contentIds } } },
+      { $match: { userId: userObjectId } },
       {
         $bucket: {
           groupBy: "$opportunityScore",
@@ -162,9 +159,7 @@ class DashboardService {
    * @param {string} userId - Authenticated user ID
    */
   async getRecentContent(userId) {
-    const sourceIds = await this.getUserSourceIds(userId);
-
-    return await ContentItem.find({ sourceId: { $in: sourceIds } })
+    return await ContentItem.find({ userId })
       .sort({ publishedAt: -1 })
       .limit(10)
       .populate("sourceId", "name type category");
@@ -175,10 +170,7 @@ class DashboardService {
    * @param {string} userId - Authenticated user ID
    */
   async getRecentRecommendations(userId) {
-    const sourceIds = await this.getUserSourceIds(userId);
-    const contentIds = await this.getUserContentIds(sourceIds);
-
-    return await Recommendation.find({ contentId: { $in: contentIds } })
+    return await Recommendation.find({ userId })
       .sort({ createdAt: -1 })
       .limit(10)
       .populate("contentId", "title url");
@@ -189,24 +181,21 @@ class DashboardService {
    * @param {string} userId - Authenticated user ID
    */
   async getActivityLogs(userId) {
-    const sourceIds = await this.getUserSourceIds(userId);
-    const contentIds = await this.getUserContentIds(sourceIds);
-
     const [recentCrawls, aiEvents, recEvents] = await Promise.all([
       // Jobs (crawls)
-      Job.find({ sourceId: { $in: sourceIds } })
+      Job.find({ userId })
         .sort({ startedAt: -1 })
         .limit(10)
         .populate("sourceId", "name type"),
 
       // AI summary creation/updates
-      Summary.find({ contentId: { $in: contentIds } })
+      Summary.find({ userId })
         .sort({ createdAt: -1 })
         .limit(10)
         .populate("contentId", "title"),
 
       // Recommendation creations
-      Recommendation.find({ contentId: { $in: contentIds } })
+      Recommendation.find({ userId })
         .sort({ createdAt: -1 })
         .limit(10)
         .populate("contentId", "title")

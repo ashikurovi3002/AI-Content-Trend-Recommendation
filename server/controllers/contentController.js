@@ -12,6 +12,7 @@ class ContentController {
    */
   async getAll(req, res, next) {
     try {
+      const userId = req.user.userId;
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
@@ -21,7 +22,7 @@ class ContentController {
       const status = req.query.status || "";
 
       // Build search query filters
-      const query = {};
+      const query = { userId };
       if (search) {
         query.$or = [
           { title: { $regex: search, $options: "i" } },
@@ -29,7 +30,7 @@ class ContentController {
         ];
       }
       if (type) {
-        const sourceIds = await Source.find({ type }).distinct("_id");
+        const sourceIds = await Source.find({ type, userId }).distinct("_id");
         query.sourceId = { $in: sourceIds };
       }
       if (status) {
@@ -64,6 +65,7 @@ class ContentController {
    */
   async getDetails(req, res, next) {
     try {
+      const userId = req.user.userId;
       const contentId = req.params.id;
 
       const contentItem = await ContentItem.findById(contentId).populate(
@@ -76,9 +78,15 @@ class ContentController {
         throw error;
       }
 
+      if (contentItem.userId && contentItem.userId.toString() !== userId.toString()) {
+        const error = new Error("Forbidden: Access denied");
+        error.status = 403;
+        throw error;
+      }
+
       // Fetch summary & recommendation
-      const summary = await Summary.findOne({ contentId });
-      const recommendation = await Recommendation.findOne({ contentId });
+      const summary = await Summary.findOne({ contentId, userId });
+      const recommendation = await Recommendation.findOne({ contentId, userId });
 
       return res.status(200).json({
         success: true,

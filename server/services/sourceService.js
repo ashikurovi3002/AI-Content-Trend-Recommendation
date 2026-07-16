@@ -55,10 +55,16 @@ class SourceService {
    * @returns {Promise<object>} Updated source document
    */
   async updateSource(userId, sourceId, updateData) {
-    const source = await Source.findOne({ _id: sourceId, userId });
+    const source = await Source.findById(sourceId);
     if (!source) {
-      const error = new Error("Source not found or access denied");
+      const error = new Error("Source not found");
       error.status = 404;
+      throw error;
+    }
+
+    if (source.userId.toString() !== userId.toString()) {
+      const error = new Error("Forbidden: Access denied");
+      error.status = 403;
       throw error;
     }
 
@@ -98,12 +104,20 @@ class SourceService {
    * @returns {Promise<boolean>} Success status
    */
   async deleteSource(userId, sourceId) {
-    const result = await Source.deleteOne({ _id: sourceId, userId });
-    if (result.deletedCount === 0) {
-      const error = new Error("Source not found or access denied");
+    const source = await Source.findById(sourceId);
+    if (!source) {
+      const error = new Error("Source not found");
       error.status = 404;
       throw error;
     }
+
+    if (source.userId.toString() !== userId.toString()) {
+      const error = new Error("Forbidden: Access denied");
+      error.status = 403;
+      throw error;
+    }
+
+    await Source.deleteOne({ _id: sourceId });
     return true;
   }
 

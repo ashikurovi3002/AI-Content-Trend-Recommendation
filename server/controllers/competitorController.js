@@ -55,10 +55,16 @@ class CompetitorController {
       const { id } = req.params;
       const userId = req.user.userId;
 
-      const competitor = await Competitor.findOne({ _id: id, userId });
+      const competitor = await Competitor.findById(id);
       if (!competitor) {
         const error = new Error("Competitor profile not found");
         error.status = 404;
+        throw error;
+      }
+
+      if (competitor.userId.toString() !== userId.toString()) {
+        const error = new Error("Forbidden: Access denied");
+        error.status = 403;
         throw error;
       }
 
@@ -82,10 +88,16 @@ class CompetitorController {
       const { id } = req.params;
       const userId = req.user.userId;
 
-      const competitor = await Competitor.findOne({ _id: id, userId });
+      const competitor = await Competitor.findById(id);
       if (!competitor) {
         const error = new Error("Competitor profile not found");
         error.status = 404;
+        throw error;
+      }
+
+      if (competitor.userId.toString() !== userId.toString()) {
+        const error = new Error("Forbidden: Access denied");
+        error.status = 403;
         throw error;
       }
 
@@ -107,10 +119,8 @@ class CompetitorController {
   async getCompetitorPosts(req, res, next) {
     try {
       const userId = req.user.userId;
-      const competitors = await Competitor.find({ userId });
-      const competitorIds = competitors.map((c) => c._id);
 
-      const posts = await CompetitorPost.find({ competitorId: { $in: competitorIds } })
+      const posts = await CompetitorPost.find({ userId })
         .populate("competitorId", "brandName logo pageUrl")
         .sort({ publishedAt: -1 });
 

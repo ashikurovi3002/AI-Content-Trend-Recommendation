@@ -698,7 +698,7 @@ ${beatenOutput.contentAssets?.visualIdea}
                       <p className="text-xs text-zinc-400 leading-relaxed font-light">{idea.concept}</p>
                       <div className="p-3 bg-zinc-950 border border-zinc-900 rounded-xl space-y-1.5 text-[10px]">
                         <span className="text-zinc-500 font-bold block">Hook Idea:</span>
-                        <p className="text-zinc-300 italic font-light">"{idea.hookIdea}"</p>
+                        <p className="text-zinc-300 italic font-light">&ldquo;{idea.hookIdea}&rdquo;</p>
                       </div>
                       <div className="flex justify-between items-center pt-2 text-[10px] text-zinc-500 font-semibold">
                         <span>Platform: {idea.targetPlatform}</span>

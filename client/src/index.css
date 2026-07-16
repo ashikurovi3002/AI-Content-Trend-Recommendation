@@ -158,6 +158,25 @@
   border-color: rgba(99, 102, 241, 0.15) !important;
 }
 
+/* Convert dark-emerald badges to clean light-emerald badges */
+.light .bg-emerald-955,
+.light .bg-emerald-950,
+.light .bg-emerald-950 * {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #047857 !important;
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Convert dark-rose badges to clean light-rose badges */
+.light .bg-rose-955,
+.light .bg-rose-950,
+.light .bg-rose-950 *,
+.light .bg-rose-955 * {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #b91c1c !important;
+  border-color: rgba(239, 68, 68, 0.15) !important;
+}
+
 /* Convert dark-gray badges to clean light-gray badges */
 .light .bg-zinc-800,
 .light .bg-zinc-800 *,

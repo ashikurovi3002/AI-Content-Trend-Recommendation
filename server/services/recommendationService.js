@@ -17,19 +17,20 @@ class RecommendationService {
   async generateRecommendation(contentItemId) {
     console.log(`💡 Generating recommendation for content item: ${contentItemId}`);
 
+    const contentItem = await ContentItem.findById(contentItemId).populate("sourceId");
+    if (!contentItem) {
+      throw new Error(`ContentItem not found: ${contentItemId}`);
+    }
+    const userId = contentItem.userId || contentItem.sourceId?.userId;
+
     // Check if recommendation already exists to prevent duplicate Gemini calls
-    const existingRec = await Recommendation.findOne({ contentId: contentItemId });
+    const existingRec = await Recommendation.findOne({ contentId: contentItemId, userId });
     if (existingRec) {
       console.log(`💡 Recommendation already exists for: ${contentItemId}. Skipping Gemini API call.`);
       return existingRec;
     }
 
-    const contentItem = await ContentItem.findById(contentItemId).populate("sourceId");
-    if (!contentItem) {
-      throw new Error(`ContentItem not found: ${contentItemId}`);
-    }
-
-    const summary = await Summary.findOne({ contentId: contentItemId });
+    const summary = await Summary.findOne({ contentId: contentItemId, userId });
     if (!summary) {
       throw new Error(
         `AI Summary context not found for content: ${contentItemId}. Summarize first.`
@@ -59,7 +60,7 @@ class RecommendationService {
       const validated = this.validateRecommendationJson(rawJson);
 
       // 5. Save/Update in MongoDB
-      let recDoc = await Recommendation.findOne({ contentId: contentItemId });
+      let recDoc = await Recommendation.findOne({ contentId: contentItemId, userId });
       if (recDoc) {
         recDoc.suggestedTitle = validated.suggestedTitle;
         recDoc.platform = validated.platform;
@@ -72,9 +73,11 @@ class RecommendationService {
         recDoc.opportunityScore = validated.opportunityScore;
         recDoc.trendScore = validated.trendScore;
         recDoc.confidenceScore = validated.confidenceScore;
+        recDoc.userId = userId;
       } else {
         recDoc = new Recommendation({
           contentId: contentItemId,
+          userId,
           suggestedTitle: validated.suggestedTitle,
           platform: validated.platform,
           contentFormat: validated.contentFormat,

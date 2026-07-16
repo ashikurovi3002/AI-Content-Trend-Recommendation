@@ -8,6 +8,11 @@ const summarySchema = new mongoose.Schema(
       required: [true, "Content item association is required"],
       unique: true
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User association is required"]
+    },
     summary: {
       type: String,
       required: [true, "Summary content is required"],
@@ -47,6 +52,8 @@ const summarySchema = new mongoose.Schema(
 // Indexes
 summarySchema.index({ topics: 1 });
 summarySchema.index({ keywords: 1 });
+summarySchema.index({ userId: 1 });
+summarySchema.index({ userId: 1, createdAt: -1 });
 
 const Summary = mongoose.model("Summary", summarySchema);
 

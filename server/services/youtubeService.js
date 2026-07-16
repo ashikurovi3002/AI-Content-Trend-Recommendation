@@ -1,6 +1,7 @@
 import axios from "axios";
 import ContentItem from "../models/ContentItem.js";
 import Job from "../models/Job.js";
+import Source from "../models/Source.js";
 import { normalizeUrl } from "../utils/urlNormalizer.js";
 
 // Axios client for Google APIs
@@ -117,9 +118,14 @@ class YoutubeService {
   async crawlChannel(sourceId, channelUrl) {
     console.log(`📡 Starting YouTube crawl workflow for: ${channelUrl}`);
 
+    const source = await Source.findById(sourceId);
+    if (!source) throw new Error(`Source not found: ${sourceId}`);
+    const userId = source.userId;
+
     // Create new running Job entry (per checklist requirements)
     const job = new Job({
       sourceId,
+      userId,
       status: "running",
       startedAt: new Date()
     });
@@ -147,6 +153,7 @@ class YoutubeService {
         // Store video inside content_items (with duration mapped in rawText metadata)
         const contentItem = new ContentItem({
           sourceId,
+          userId,
           externalId: normalizedUrl,
           title: video.title,
           description: video.description || "",

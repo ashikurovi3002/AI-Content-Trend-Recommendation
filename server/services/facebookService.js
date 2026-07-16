@@ -1,5 +1,6 @@
 import ContentItem from "../models/ContentItem.js";
 import Job from "../models/Job.js";
+import Source from "../models/Source.js";
 import { normalizeUrl } from "../utils/urlNormalizer.js";
 
 class FacebookService {
@@ -22,7 +23,7 @@ class FacebookService {
     } catch {
       // Fallback if URL parsing fails
     }
-    const match = url.trim().match(/facebook\.com\/([a-zA-Z0-9\._-]+)/);
+    const match = url.trim().match(/facebook\.com\/([a-zA-Z0-9._-]+)/);
     if (match) return match[1];
     return url.trim();
   }
@@ -36,8 +37,13 @@ class FacebookService {
   async crawlPage(sourceId, pageUrl) {
     console.log(`📡 Starting Facebook Page crawl workflow for: ${pageUrl}`);
 
+    const source = await Source.findById(sourceId);
+    if (!source) throw new Error(`Source not found: ${sourceId}`);
+    const userId = source.userId;
+
     const job = new Job({
       sourceId,
+      userId,
       status: "running",
       startedAt: new Date()
     });
@@ -51,9 +57,9 @@ class FacebookService {
 
       // Format page name nicely for author field (e.g. programmingHero -> Programming Hero)
       const pageName = pageId
-        .split(/[\._-]/)
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
+         .split(/[._-]/)
+         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+         .join(" ");
 
       // Retrieve topic-specific posts matching the page theme
       const mockPosts = this.getTopicSpecificPosts(pageId, pageName);
@@ -71,6 +77,7 @@ class FacebookService {
 
         const contentItem = new ContentItem({
           sourceId,
+          userId,
           externalId: normalizedUrl,
           title: post.title,
           description: post.description || "",
@@ -115,7 +122,7 @@ class FacebookService {
       {
         id: "1001",
         title: `Exciting updates from ${pageName}!`,
-        description: `We are launching some major updates today! Read more about our upcoming developer bootcamps and learn how you can scale your career with next-gen coding pipelines. Comment below your thoughts.`,
+        description: "We are launching some major updates today! Read more about our upcoming developer bootcamps and learn how you can scale your career with next-gen coding pipelines. Comment below your thoughts.",
         publishedAt: new Date(now.getTime() - 3600000), // 1h ago
         thumbnail: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500"
       },

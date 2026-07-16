@@ -46,6 +46,8 @@ const sourceSchema = new mongoose.Schema(
 sourceSchema.index({ userId: 1 });
 sourceSchema.index({ status: 1 });
 sourceSchema.index({ type: 1 });
+sourceSchema.index({ userId: 1, createdAt: -1 });
+sourceSchema.index({ userId: 1, status: 1 });
 
 const Source = mongoose.model("Source", sourceSchema);
 

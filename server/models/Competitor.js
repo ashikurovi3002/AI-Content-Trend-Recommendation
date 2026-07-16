@@ -47,6 +47,8 @@ const competitorSchema = new mongoose.Schema(
 
 competitorSchema.index({ userId: 1 });
 competitorSchema.index({ pageUrl: 1 });
+competitorSchema.index({ userId: 1, createdAt: -1 });
+competitorSchema.index({ userId: 1, status: 1 });
 
 const Competitor = mongoose.model("Competitor", competitorSchema);
 

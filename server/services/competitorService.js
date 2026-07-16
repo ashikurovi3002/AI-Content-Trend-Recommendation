@@ -40,7 +40,7 @@ class CompetitorService {
     } catch {
       // Fallback
     }
-    const match = url.trim().match(/facebook\.com\/([a-zA-Z0-9\._-]+)/);
+    const match = url.trim().match(/facebook\.com\/([a-zA-Z0-9._-]+)/);
     if (match) return match[1];
     return url.trim();
   }
@@ -61,7 +61,7 @@ class CompetitorService {
       brandName,
       pageUrl: pageUrl.trim(),
       category,
-      logo: `https://logo.clearbit.com/${this.parsePageUrl(pageUrl)}.com` || "",
+      logo: `https://logo.clearbit.com/${this.parsePageUrl(pageUrl)}.com`,
       description: `${brandName} competitor profile tracking ${category} content trends.`
     });
 
@@ -227,7 +227,7 @@ class CompetitorService {
       {
         postId: `gen_${pageName}_01`,
         title: `Scaling ${brandName} operations and digital growth strategy`,
-        description: `How we optimize our core operations for tech distribution and audience engagement. Swipe to read our full analysis list.`,
+        description: "How we optimize our core operations for tech distribution and audience engagement. Swipe to read our full analysis list.",
         publishedAt: subDays(2),
         format: "Carousel",
         engagement: { likes: 450, shares: 80, comments: 35 }
@@ -235,7 +235,7 @@ class CompetitorService {
       {
         postId: `gen_${pageName}_02`,
         title: `Tutorial on implementing structured JSON outputs in ${brandName}`,
-        description: `A comprehensive developer tutorial demonstrating integration steps, database mapping, and key parameters.`,
+        description: "A comprehensive developer tutorial demonstrating integration steps, database mapping, and key parameters.",
         publishedAt: subDays(4),
         format: "Tutorial",
         engagement: { likes: 320, shares: 45, comments: 20 }
@@ -243,7 +243,7 @@ class CompetitorService {
       {
         postId: `gen_${pageName}_03`,
         title: `How ${brandName} automates routine ingestion workloads`,
-        description: `Sharing our strategic recommendations and internal tools we built to simplify data syncing across channels.`,
+        description: "Sharing our strategic recommendations and internal tools we built to simplify data syncing across channels.",
         publishedAt: subDays(8),
         format: "Long Post",
         engagement: { likes: 620, shares: 110, comments: 55 }
@@ -291,8 +291,11 @@ class CompetitorService {
    */
   async generateComparisonReport(userId, competitorIds) {
     const competitors = await Competitor.find({ _id: { $in: competitorIds } });
-    if (competitors.length === 0) {
-      throw new Error("No valid competitors found for the selected IDs");
+    const hasInvalid = competitors.some((c) => c.userId.toString() !== userId.toString());
+    if (hasInvalid || competitors.length !== competitorIds.length) {
+      const error = new Error("Forbidden: Access denied");
+      error.status = 403;
+      throw error;
     }
 
     const posts = await CompetitorPost.find({ competitorId: { $in: competitorIds } })
@@ -487,7 +490,15 @@ Return a strict JSON response containing EXACTLY the following structure (do not
   async generateBeatCompetitorPost(userId, postId) {
     const post = await CompetitorPost.findById(postId).populate("competitorId");
     if (!post) {
-      throw new Error("Competitor post not found");
+      const error = new Error("Competitor post not found");
+      error.status = 404;
+      throw error;
+    }
+
+    if (!post.competitorId || post.competitorId.userId.toString() !== userId.toString()) {
+      const error = new Error("Forbidden: Access denied");
+      error.status = 403;
+      throw error;
     }
 
     const brandProfile = await this.getBrandProfile(userId);

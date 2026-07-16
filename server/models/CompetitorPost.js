@@ -7,6 +7,11 @@ const competitorPostSchema = new mongoose.Schema(
       ref: "Competitor",
       required: [true, "Competitor association is required"]
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User association is required"]
+    },
     externalId: {
       type: String,
       required: [true, "External unique identifier is required"],
@@ -53,6 +58,9 @@ const competitorPostSchema = new mongoose.Schema(
 
 competitorPostSchema.index({ competitorId: 1 });
 competitorPostSchema.index({ publishedAt: -1 });
+competitorPostSchema.index({ userId: 1 });
+competitorPostSchema.index({ userId: 1, createdAt: -1 });
+competitorPostSchema.index({ userId: 1, competitorId: 1 });
 
 const CompetitorPost = mongoose.model("CompetitorPost", competitorPostSchema);
 

@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import ContentItem from "../models/ContentItem.js";
 import Summary from "../models/Summary.js";
 import User from "../models/User.js";
+import StudioOutput from "../models/StudioOutput.js";
 
 const getAIClient = async (userId) => {
   let apiKey = null;
@@ -38,6 +39,7 @@ class AIStudioController {
         throw error;
       }
 
+      const userId = req.user.userId;
       let contentInfoText = "";
 
       if (contentId) {
@@ -48,7 +50,13 @@ class AIStudioController {
           throw error;
         }
 
-        const summary = await Summary.findOne({ contentId });
+        if (contentItem.userId && contentItem.userId.toString() !== userId.toString()) {
+          const error = new Error("Forbidden: Access denied");
+          error.status = 403;
+          throw error;
+        }
+
+        const summary = await Summary.findOne({ contentId, userId });
 
         contentInfoText = `
 Source Title: ${contentItem.title}
@@ -128,6 +136,16 @@ Respond with ONLY the generated markdown content. Do not include markdown code b
         .replace(/```$/, "")
         .trim();
 
+      // Persist the output to database per user
+      const studioOutput = new StudioOutput({
+        userId,
+        contentId: contentId || null,
+        format,
+        instructions: instructions || "",
+        content: generatedText
+      });
+      await studioOutput.save();
+
       return res.status(200).json({
         success: true,
         message: `${format} content generated successfully`,
@@ -175,7 +193,7 @@ Refinement Directives:
 - For Twitter threads, preserve the "---" delimiters separating individual tweets.
 - Respond with ONLY the updated draft content. Do not include markdown block ticks or chat introductions. Return the clean text draft only.`;
 
-      console.log(`🤖 AI Studio refining draft via chat...`);
+      console.log("🤖 AI Studio refining draft via chat...");
       const ai = await getAIClient(req.user?.userId);
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
@@ -195,6 +213,16 @@ Refinement Directives:
         .replace(/^```/, "")
         .replace(/```$/, "")
         .trim();
+
+      // Persist the refined output to database per user
+      const studioOutput = new StudioOutput({
+        userId: req.user.userId,
+        contentId: null,
+        format: format || "general",
+        instructions: chatPrompt,
+        content: refinedText
+      });
+      await studioOutput.save();
 
       return res.status(200).json({
         success: true,

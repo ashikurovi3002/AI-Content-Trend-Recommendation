@@ -1,4 +1,5 @@
 import Recommendation from "../models/Recommendation.js";
+import ContentItem from "../models/ContentItem.js";
 import recommendationService from "../services/recommendationService.js";
 
 /**
@@ -20,7 +21,7 @@ class RecommendationController {
       const minScore = parseInt(req.query.minScore) || 0;
 
       // Build search query filters
-      const query = {};
+      const query = { userId: req.user.userId };
 
       if (search) {
         query.$or = [
@@ -73,6 +74,7 @@ class RecommendationController {
    */
   async getDetails(req, res, next) {
     try {
+      const userId = req.user.userId;
       const recId = req.params.id;
 
       const recommendation = await Recommendation.findById(recId).populate({
@@ -86,6 +88,12 @@ class RecommendationController {
       if (!recommendation) {
         const error = new Error("Recommendation not found");
         error.status = 404;
+        throw error;
+      }
+
+      if (recommendation.userId && recommendation.userId.toString() !== userId.toString()) {
+        const error = new Error("Forbidden: Access denied");
+        error.status = 403;
         throw error;
       }
 
@@ -104,7 +112,22 @@ class RecommendationController {
    */
   async generate(req, res, next) {
     try {
+      const userId = req.user.userId;
       const contentItemId = req.params.contentId;
+
+      const contentItem = await ContentItem.findById(contentItemId);
+      if (!contentItem) {
+        const error = new Error("Content item not found");
+        error.status = 404;
+        throw error;
+      }
+
+      if (contentItem.userId && contentItem.userId.toString() !== userId.toString()) {
+        const error = new Error("Forbidden: Access denied");
+        error.status = 403;
+        throw error;
+      }
+
       const recommendation = await recommendationService.generateRecommendation(contentItemId);
 
       return res.status(201).json({

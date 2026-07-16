@@ -234,9 +234,11 @@ class AIService {
       let summaryDoc = await Summary.findOne({ contentId: contentItemId });
       if (summaryDoc) {
         Object.assign(summaryDoc, summaryData);
+        summaryDoc.userId = userId;
       } else {
         summaryDoc = new Summary({
           contentId: contentItemId,
+          userId,
           ...summaryData
         });
       }
@@ -246,9 +248,11 @@ class AIService {
       let recDoc = await Recommendation.findOne({ contentId: contentItemId });
       if (recDoc) {
         Object.assign(recDoc, recommendationData);
+        recDoc.userId = userId;
       } else {
         recDoc = new Recommendation({
           contentId: contentItemId,
+          userId,
           ...recommendationData
         });
       }

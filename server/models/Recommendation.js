@@ -5,8 +5,12 @@ const recommendationSchema = new mongoose.Schema(
     contentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ContentItem",
-      required: [true, "Content item association is required"],
-      unique: true
+      required: [true, "Content item association is required"]
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User association is required"]
     },
     suggestedTitle: {
       type: String,
@@ -85,6 +89,9 @@ const recommendationSchema = new mongoose.Schema(
 // Indexes
 recommendationSchema.index({ platform: 1 });
 recommendationSchema.index({ opportunityScore: -1 });
+recommendationSchema.index({ userId: 1 });
+recommendationSchema.index({ userId: 1, createdAt: -1 });
+recommendationSchema.index({ userId: 1, contentId: 1 }, { unique: true });
 
 const Recommendation = mongoose.model("Recommendation", recommendationSchema);
 

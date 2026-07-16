@@ -7,6 +7,11 @@ const contentItemSchema = new mongoose.Schema(
       ref: "Source",
       required: [true, "Source association is required"]
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User association is required"]
+    },
     externalId: {
       type: String,
       required: [true, "External unique identifier is required"],
@@ -53,9 +58,13 @@ const contentItemSchema = new mongoose.Schema(
   }
 );
 
-// Indexes (per docs/03-database-design.md)
+// Indexes (per docs/03-database-design.md & multi-user requirements)
 contentItemSchema.index({ sourceId: 1 });
 contentItemSchema.index({ publishedAt: -1 });
+contentItemSchema.index({ userId: 1 });
+contentItemSchema.index({ userId: 1, createdAt: -1 });
+contentItemSchema.index({ userId: 1, sourceId: 1 });
+contentItemSchema.index({ userId: 1, processedStatus: 1 });
 
 const ContentItem = mongoose.model("ContentItem", contentItemSchema);
 

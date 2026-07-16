@@ -499,7 +499,7 @@ export default function Dashboard() {
                   {activity.recentCrawls.slice(0, 4).map((c) => (
                     <div
                       key={c.id}
-                      className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs"
+                      className="p-3 rounded-lg bg-zinc-950/40 border border-zinc-850 text-xs"
                     >
                       <div className="flex justify-between items-center">
                         <span className="font-semibold text-zinc-300 truncate max-w-28">
@@ -532,7 +532,7 @@ export default function Dashboard() {
                   {activity.aiProcessingEvents.slice(0, 4).map((a) => (
                     <div
                       key={a.id}
-                      className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs"
+                      className="p-3 rounded-lg bg-zinc-950/40 border border-zinc-850 text-xs"
                     >
                       <p className="font-semibold text-zinc-300 truncate">{a.title}</p>
                       <div className="flex justify-between items-center mt-1">
@@ -561,7 +561,7 @@ export default function Dashboard() {
                   {activity.recommendationEvents.slice(0, 4).map((r) => (
                     <div
                       key={r.id}
-                      className="p-3 rounded-lg bg-zinc-950/45 border border-zinc-850 text-xs"
+                      className="p-3 rounded-lg bg-zinc-950/40 border border-zinc-850 text-xs"
                     >
                       <p className="font-semibold text-zinc-300 truncate">{r.title}</p>
                       <div className="flex items-center gap-1.5 mt-1">
